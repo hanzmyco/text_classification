@@ -42,6 +42,12 @@ def read_data(filename, vocab, window, overlap):
                 yield chunk
 
 
+def read_data_ram(index_words):
+    while True:
+        for sentence in index_words:
+            yield sentence
+
+
 def read_batch(stream, batch_size):
     batch = []
     for element in stream:
@@ -56,20 +62,13 @@ class CharRNN(object):
     def __init__(self, model):
         self.model = model
         self.path = '../data/' + model + '.txt'
-        if 'trump' in model:
-            self.vocab = ("$%'()+,-./0123456789:;=?ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                          " '\"_abcdefghijklmnopqrstuvwxyz{|}@#➡📈")
-        else:
-            self.vocab = (" $%'()+,-./0123456789:;=?ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                          "\\^_abcdefghijklmnopqrstuvwxyz{|}")
-
         self.seq = tf.placeholder(tf.int32, [None, None])
         self.temp = tf.constant(1.5)
         self.hidden_sizes = [128, 256]
         self.batch_size = 64
         self.lr = 0.0003
         self.skip_step = 1
-        self.num_steps = 50  # for RNN unrolled
+        self.num_steps = 10  # for RNN unrolled
         self.len_generated = 200
         self.gstep = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
 
@@ -86,6 +85,11 @@ class CharRNN(object):
         self.output, self.out_state = tf.nn.dynamic_rnn(cells, seq, length, self.in_state)
 
     def create_model(self):
+        local_dest = '../data/trump_tweets.txt'
+        words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
+        self.vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
+        self.index_words = word2vec_utils.convert_words_to_index(actual_text, self.vocab, self.num_steps)
+
         seq = tf.one_hot(self.seq, len(self.vocab))
         self.create_rnn(seq)
         self.logits = tf.layers.dense(self.output, len(self.vocab), None)
@@ -96,6 +100,8 @@ class CharRNN(object):
         # with temperature temp. It works equally well without tf.exp
         self.sample = tf.multinomial(tf.exp(self.logits[:, -1] / self.temp), 1)[:, 0]
         self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
+
+
 
     def train(self):
         saver = tf.train.Saver()
@@ -110,7 +116,10 @@ class CharRNN(object):
                 saver.restore(sess, ckpt.model_checkpoint_path)
 
             iteration = self.gstep.eval()
-            stream = read_data(self.path, self.vocab, self.num_steps, overlap=self.num_steps // 2)
+            #stream = read_data(self.path, self.vocab, self.num_steps, overlap=self.num_steps // 2)
+
+            stream = read_data_ram(self.index_words)
+
             data = read_batch(stream, self.batch_size)
             while True:
                 batch = next(data)
@@ -119,7 +128,7 @@ class CharRNN(object):
                 batch_loss, _ = sess.run([self.loss, self.opt], {self.seq: batch})
                 if (iteration + 1) % self.skip_step == 0:
                     print('Iter {}. \n    Loss {}. Time {}'.format(iteration, batch_loss, time.time() - start))
-                    self.online_infer(sess)
+                    #self.online_infer(sess)
                     start = time.time()
                     checkpoint_name = 'checkpoints/' + self.model + '/char-rnn'
                     if min_loss is None:

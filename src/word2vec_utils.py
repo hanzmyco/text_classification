@@ -20,18 +20,20 @@ def read_data(file_path):
     """
     words=[]
     dic_word={}
+    actual_text=[]
     for line in open(file_path,encoding='utf-8'):
         words_line=line.strip().split(' ')
         for ite in words_line:
             if ite not in dic_word:
                 dic_word[ite]=1
         words.extend(words_line)
+        actual_text.append(words_line)
 
 
     #with zipfile.ZipFile(file_path) as f:
         #words = tf.compat.as_str(f.read(f.namelist()[0])).split()
 
-    return words,len(dic_word)
+    return words,len(dic_word),actual_text
 
 def build_vocab(words, vocab_size, visual_fld=None):
     """ Build vocabulary of VOCAB_SIZE most frequent words and write it to
@@ -54,9 +56,18 @@ def build_vocab(words, vocab_size, visual_fld=None):
     file.close()
     return dictionary, index_dictionary
 
-def convert_words_to_index(words, dictionary):
+def convert_words_to_index(actual_text, dictionary,length):
     """ Replace each word in the dataset with its index in the dictionary """
-    return [dictionary[word] if word in dictionary else 0 for word in words]
+    output_index=[]
+    for words in actual_text:
+        full_sentence = [dictionary[word] if word in dictionary else 0 for word in words]
+        sen_len=len(full_sentence)
+        if sen_len<length:
+            full_sentence.extend([0]*(length-sen_len))
+        else:
+            full_sentence=full_sentence[:length]
+        output_index.append(full_sentence)
+    return output_index
 
 def generate_sample(index_words, context_window_size):
     """ Form training pairs according to the skip-gram model. """
@@ -99,9 +110,9 @@ def batch_gen(download_url, expected_byte, vocab_size, batch_size,
         yield center_batch,target_batch
 
 
-
+'''
 local_dest = '../data/trump_tweets.txt'
-words,vocab_size = read_data(local_dest)
+words,vocab_size,actual_text = read_data(local_dest)
 dictionary, _ = build_vocab(words, vocab_size,'../visualization')
-index_words = convert_words_to_index(words, dictionary)
-print('stop')
+index_words = convert_words_to_index(actual_text, dictionary,10)
+'''
