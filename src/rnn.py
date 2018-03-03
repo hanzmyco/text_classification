@@ -47,6 +47,11 @@ def read_data_ram(index_words):
         for sentence in index_words:
             yield sentence
 
+def read_label(labels_file):
+    while True:
+        for line in open(labels_file):
+            label = int(line.strip())
+            yield label
 
 def read_batch(stream, batch_size):
     batch = []
@@ -63,14 +68,16 @@ class CharRNN(object):
         self.model = model
         self.path = '../data/' + model + '.txt'
         self.seq = tf.placeholder(tf.int32, [None, None])
+        self.label = tf.placeholder(tf.int32, [None,None])
         self.temp = tf.constant(1.5)
         self.hidden_sizes = [128, 256]
-        self.batch_size = 64
+        self.batch_size = 10
         self.lr = 0.0003
         self.skip_step = 1
         self.num_steps = 10  # for RNN unrolled
         self.len_generated = 200
         self.gstep = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
+        self.num_classes = 2
 
     def create_rnn(self, seq):
         layers = [tf.nn.rnn_cell.GRUCell(size) for size in self.hidden_sizes]
@@ -85,20 +92,20 @@ class CharRNN(object):
         self.output, self.out_state = tf.nn.dynamic_rnn(cells, seq, length, self.in_state)
 
     def create_model(self):
-        local_dest = '../data/trump_tweets.txt'
+        local_dest = '../data/trump_tweets_short.txt'
         words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
         self.vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
         self.index_words = word2vec_utils.convert_words_to_index(actual_text, self.vocab, self.num_steps)
 
         seq = tf.one_hot(self.seq, len(self.vocab))
         self.create_rnn(seq)
-        self.logits = tf.layers.dense(self.output, len(self.vocab), None)
-        loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits[:, :-1],
-                                                       labels=seq[:, 1:])
+        self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes)-1], self.num_classes, None)
+        loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
+                                                       labels=self.label)
         self.loss = tf.reduce_sum(loss)
         # sample the next character from Maxwell-Boltzmann Distribution
         # with temperature temp. It works equally well without tf.exp
-        self.sample = tf.multinomial(tf.exp(self.logits[:, -1] / self.temp), 1)[:, 0]
+        #self.sample = tf.multinomial(tf.exp(self.logits[:, -1] / self.temp), 1)[:, 0]
         self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
 
@@ -119,13 +126,21 @@ class CharRNN(object):
             #stream = read_data(self.path, self.vocab, self.num_steps, overlap=self.num_steps // 2)
 
             stream = read_data_ram(self.index_words)
-
-            data = read_batch(stream, self.batch_size)
+            stream_label = read_label('../data/labels.txt')
+            data= read_batch(stream, self.batch_size)
+            labels = read_batch(stream_label,self.batch_size)
             while True:
                 batch = next(data)
+                label = next(labels)
+                one_hoted_label = []
+                for ite in label:
+                    single_line = [0]*self.num_classes
+                    single_line[ite]=1
+                    one_hoted_label.append(single_line)
+
 
                 # for batch in read_batch(read_data(DATA_PATH, vocab)):
-                batch_loss, _ = sess.run([self.loss, self.opt], {self.seq: batch})
+                batch_loss, _ = sess.run([self.loss, self.opt], {self.label:one_hoted_label,self.seq: batch})
                 if (iteration + 1) % self.skip_step == 0:
                     print('Iter {}. \n    Loss {}. Time {}'.format(iteration, batch_loss, time.time() - start))
                     #self.online_infer(sess)
@@ -156,7 +171,7 @@ class CharRNN(object):
 
 
 def main():
-    model = 'trump_tweets'
+    model = 'trump_tweets_short'
     utils.safe_mkdir('checkpoints')
     utils.safe_mkdir('checkpoints/' + model)
 

@@ -62,7 +62,7 @@ def convert_words_to_index(actual_text, dictionary,length):
     for words in actual_text:
         full_sentence = [dictionary[word] if word in dictionary else 0 for word in words]
         sen_len=len(full_sentence)
-        if sen_len<length:
+        if sen_len<length: # padding
             full_sentence.extend([0]*(length-sen_len))
         else:
             full_sentence=full_sentence[:length]
