@@ -25,12 +25,16 @@ class BaseModel(object):
         self.out_state = None
         self.in_state = None
         self.sample = None
+        self.num_steps = 10  # for RNN unrolled, actually use it for cut down
 
     def __init__(self, model):
         pass
 
 
     def create_actual_model(self, seq):
+        pass
+
+    def get_logits(self):
         pass
 
     def create_model(self):
@@ -41,7 +45,8 @@ class BaseModel(object):
 
         seq = tf.one_hot(self.seq, len(self.vocab))
         self.create_actual_model(seq)
-        self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes)-1], self.num_classes, None)
+        self.get_logits()
+
         loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
                                                        labels=self.label)
         self.loss = tf.reduce_sum(loss)
