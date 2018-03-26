@@ -13,7 +13,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import sys
 
 sys.path.append('..')
-import time
+
 
 import tensorflow as tf
 
@@ -22,7 +22,12 @@ import utils
 #import word2vec_utils
 import models
 
-class CharRNN(models.BaseModel):
+class RNN(models.BaseModel):
+    def __init__(self,model):
+        self.base_init(model)
+        self.hidden_sizes = [128, 256]
+        self.num_steps = 10  # for RNN unrolled
+
     def create_actual_model(self, seq):
         layers = [tf.nn.rnn_cell.GRUCell(size) for size in self.hidden_sizes]
         cells = tf.nn.rnn_cell.MultiRNNCell(layers)
@@ -44,7 +49,7 @@ def main():
     utils.safe_mkdir('checkpoints')
     utils.safe_mkdir('checkpoints/' + model)
 
-    lm = CharRNN(model)
+    lm = RNN(model)
     lm.create_model()
     lm.train()
 

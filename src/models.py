@@ -10,23 +10,25 @@ import word2vec_utils
 
 
 class BaseModel(object):
-    def __init__(self, model):
+    def base_init(self,model):
         self.model = model
         self.path = '../data/' + model + '.txt'
         self.seq = tf.placeholder(tf.int32, [None, None])
-        self.label = tf.placeholder(tf.int32, [None,None])
+        self.label = tf.placeholder(tf.int32, [None, None])
         self.temp = tf.constant(1.5)
-        self.hidden_sizes = [128, 256]
         self.batch_size = 10
         self.lr = 0.0003
         self.skip_step = 1
-        self.num_steps = 10  # for RNN unrolled
         self.len_generated = 200
         self.gstep = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
         self.num_classes = 2
         self.out_state = None
         self.in_state = None
         self.sample = None
+
+    def __init__(self, model):
+        pass
+
 
     def create_actual_model(self, seq):
         pass
