@@ -26,25 +26,36 @@ class BaseModel(object):
         self.in_state = None
         self.sample = None
         self.num_steps = 10  # for RNN unrolled, actually use it for cut down
+        self.embedding_size = 10
 
     def __init__(self, model):
         pass
 
 
-    def create_actual_model(self, seq):
+    def create_actual_model(self, embd):
         pass
 
     def get_logits(self):
         pass
 
-    def create_model(self):
+    def create_model(self,one_hot=False):
         local_dest = '../data/trump_tweets_short.txt'
-        words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
-        self.vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
+        words, self.vocab_size, actual_text = word2vec_utils.read_data(local_dest)
+        self.vocab, _ = word2vec_utils.build_vocab(words, self.vocab_size, '../visualization')
         self.index_words = word2vec_utils.convert_words_to_index(actual_text, self.vocab, self.num_steps)
 
-        seq = tf.one_hot(self.seq, len(self.vocab))
-        self.create_actual_model(seq)
+        if one_hot:  # not using embeddign layer
+            embed = tf.one_hot(self.seq, self.vocab_size)
+
+        else:  # using embedding layer
+            with tf.name_scope('embed'):
+                embed_matrix = tf.get_variable('embed_matrix',
+                                               shape=[self.vocab_size, self.embedding_size],
+                                               initializer=tf.random_uniform_initializer())
+                embed = tf.nn.embedding_lookup(embed_matrix, self.seq, name='embedding')
+
+        self.create_actual_model(embed)
+
         self.get_logits()
 
         loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
