@@ -1,26 +1,11 @@
-""" A clean, no_frills character-level generative language model.
-
-CS 20: "TensorFlow for Deep Learning Research"
-cs20.stanford.edu
-Danijar Hafner (mail@danijar.com)
-& Chip Huyen (chiphuyen@cs.stanford.edu)
-Lecture 11
-"""
 import os
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-
 import sys
-
 sys.path.append('..')
-
-
 import tensorflow as tf
-
 import utils
-
-#import word2vec_utils
 import models
+
 
 class RNN(models.BaseModel):
     def __init__(self,model):
@@ -45,15 +30,3 @@ class RNN(models.BaseModel):
         self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1], self.num_classes, None)
 
 
-def main():
-    model = 'trump_tweets_short'
-    utils.safe_mkdir('checkpoints')
-    utils.safe_mkdir('checkpoints/' + model)
-
-    lm = RNN(model)
-    lm.create_model()
-    lm.train()
-
-
-if __name__ == '__main__':
-    main()
