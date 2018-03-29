@@ -3,14 +3,16 @@ import utils
 import config
 import os
 from rnn import RNN
+from cnn import CNN
+
 import word2vec_utils
 
 def main():
 
     # set up check points location
-    model = config.MODEL_NAME
+    model_name = config.MODEL_NAME
     utils.safe_mkdir('../checkpoints')
-    utils.safe_mkdir('../checkpoints/' + model)
+    utils.safe_mkdir(config.CPT_PATH)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', choices={'train', 'inference'},
@@ -25,8 +27,11 @@ def main():
         index_words = word2vec_utils.convert_words_to_index(actual_text, vocab, config.NUM_STEPS)
 
 
+    if config.MODEL_NAME=='GRU':
+        lm = RNN(config.MODEL_NAME)
+    elif config.MODEL_NAME =='CNN':
+        lm = CNN(config.MODEL_NAME)
 
-    lm = RNN(model)
     lm.vocab_size = vocab_size
     lm.index_words= index_words
     lm.create_model()
