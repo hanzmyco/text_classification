@@ -3,9 +3,9 @@
 DATA_PATH = '../data/trump_tweets_short.txt'
 OUTPUT_FILE = 'output_convo.txt'
 PROCESSED_PATH = 'processed'
-CPT_PATH = 'checkpoints'
 
 MODEL_NAME='trump_tweets_short_RNN'
+CPT_PATH = '../checkpoints/' + MODEL_NAME
 
 THRESHOLD = 1
 

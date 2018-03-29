@@ -67,6 +67,15 @@ class BaseModel(object):
         #self.sample = tf.multinomial(tf.exp(self.logits[:, -1] / self.temp), 1)[:, 0]
         self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
+    def _check_restore_parameters(sess, saver):
+        """ Restore the previously trained parameters if there are any. """
+        ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH + '/checkpoint'))
+        if ckpt and ckpt.model_checkpoint_path:
+            print("Loading parameters for the Chatbot")
+            saver.restore(sess, ckpt.model_checkpoint_path)
+        else:
+            print("Initializing fresh parameters for the Chatbot")
+
 
 
     def train(self):
@@ -77,7 +86,7 @@ class BaseModel(object):
             writer = tf.summary.FileWriter('../graphs/gist', sess.graph)
             sess.run(tf.global_variables_initializer())
 
-            ckpt = tf.train.get_checkpoint_state(os.path.dirname('../checkpoints/' + self.model + '/checkpoint'))
+            ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH+ '/checkpoint'))
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
 
@@ -104,13 +113,15 @@ class BaseModel(object):
                     print('Iter {}. \n    Loss {}. Time {}'.format(iteration, batch_loss, time.time() - start))
                     #self.online_infer(sess)
                     start = time.time()
-                    checkpoint_name = 'checkpoints/' + self.model #+ '/char-rnn'
+                    checkpoint_name = config.CPT_PATH+'/'
                     if min_loss is None:
                         saver.save(sess, checkpoint_name, iteration)
                     elif batch_loss < min_loss:
                         saver.save(sess, checkpoint_name, iteration)
                         min_loss = batch_loss
                 iteration += 1
+
+
     def inference(self):
         saver = tf.train.Saver()
         start = time.time()
