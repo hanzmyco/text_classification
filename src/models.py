@@ -138,9 +138,13 @@ class BaseModel(object):
             stream_label = utils.read_label(config.inference_label_path)
             data = utils.read_batch(stream, self.batch_size)
             labels = utils.read_batch(stream_label, self.batch_size)
+            output_file = open(config.inference_result_path,'a+')
 
             while True:
+
                 batch = next(data)
+                if len(batch) ==0:
+                    break
                 label = next(labels)
                 one_hoted_label = []
                 for ite in label:
@@ -149,7 +153,13 @@ class BaseModel(object):
                     one_hoted_label.append(single_line)
 
                 # for batch in read_batch(read_data(DATA_PATH, vocab)):
-                batch_loss, _ = sess.run([self.loss, self.opt], {self.label: one_hoted_label, self.seq: batch})
+                batch_loss, _,predicted = sess.run([self.loss, self.opt,self.label], {self.label: one_hoted_label, self.seq: batch})
+                output_file.write(str(predicted))
+                output_file.write('\n')
+            output_file.close()
+
+
+
 
 
     def online_infer(self, sess):

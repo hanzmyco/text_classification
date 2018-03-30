@@ -19,32 +19,7 @@ def safe_mkdir(path):
     except OSError:
         pass
 
-def download_one_file(download_url, 
-                    local_dest, 
-                    expected_byte=None, 
-                    unzip_and_remove=False):
-    """ 
-    Download the file from download_url into local_dest
-    if the file doesn't already exists.
-    If expected_byte is provided, check if 
-    the downloaded file has the same number of bytes.
-    If unzip_and_remove is True, unzip the file and remove the zip file
-    """
-    if os.path.exists(local_dest) or os.path.exists(local_dest[:-3]):
-        print('%s already exists' %local_dest)
-    else:
-        print('Downloading %s' %download_url)
-        local_file, _ = urllib.request.urlretrieve(download_url, local_dest)
-        file_stat = os.stat(local_dest)
-        if expected_byte:
-            if file_stat.st_size == expected_byte:
-                print('Successfully downloaded %s' %local_dest)
-                if unzip_and_remove:
-                    with gzip.open(local_dest, 'rb') as f_in, open(local_dest[:-3],'wb') as f_out:
-                        shutil.copyfileobj(f_in, f_out)
-                    os.remove(local_dest)
-            else:
-                print('The downloaded file has unexpected number of bytes')
+
 
 def vocab_encode(text, vocab):
     return [vocab.index(x) + 1 for x in text if x in vocab]
@@ -68,7 +43,7 @@ def read_data(filename, vocab, window, overlap):
 
 
 def read_data_ram(index_words):
-    while True:
+    #while True:
         for sentence in index_words:
             yield sentence
 
