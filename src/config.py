@@ -1,12 +1,19 @@
 
 # parameters for processing the dataset
-DATA_PATH = '../data/trump_tweets_short.txt'
+train_DATA_PATH = '../data/trump_tweets_short.txt'
+train_label_path= '../data/labels.txt'
+
+inference_DATA_PATH ='../data/trump_tweets_short_text.txt'
+inference_label_path='../data/labels_test.txt'
+
 OUTPUT_FILE = 'output_convo.txt'
 PROCESSED_PATH = 'processed'
 
 MODEL_NAME='CNN'
 
 CPT_PATH = '../checkpoints/'+MODEL_NAME
+
+VOCAB_SIZE='281'
 
 THRESHOLD = 1
 
