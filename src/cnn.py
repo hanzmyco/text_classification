@@ -40,16 +40,3 @@ class CNN(models.BaseModel):
 
 
 
-
-def main():
-    model = 'trump_tweets_short'
-    utils.safe_mkdir('checkpoints')
-    utils.safe_mkdir('checkpoints/' + model)
-
-    lm = CNN(model)
-    lm.create_model()
-    lm.train()
-
-
-if __name__ == '__main__':
-    main()
