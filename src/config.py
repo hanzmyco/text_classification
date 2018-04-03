@@ -1,16 +1,17 @@
 
 # parameters for processing the dataset
 #train_DATA_PATH = '../data/trump_tweets.txt'
-train_DATA_PATH = '../data/kaggle/training.txt'
-#train_label_path= '../data/labels.txt'
-train_label_path= '../data/kaggle/labels.txt'
+DATA_PATH = '../data/kaggle/'
+TRAIN_DATA_NAME='train.txt'
+TRAIN_LABEL_NAME= 'labels.txt'
 
-inference_DATA_PATH ='../data/trump_tweets_short_test.txt'
-inference_label_path='../data/labels_test.txt'
-inference_result_path='../data/labels_result_test.txt'
+INFERENCE_DATA_NAME ='trump_tweets_short_test.txt'
+INFERENCE_LABEL_NAME='labels_test.txt'
+INFERENCE_RESULT_NAME='labels_result_test.txt'
+
 
 OUTPUT_FILE = 'output_convo.txt'
-PROCESSED_PATH = 'processed'
+PROCESSED_PATH = '../data/processed/'
 
 MODEL_NAME='GRU'
 
@@ -39,9 +40,12 @@ NUM_LAYERS = 2
 HIDDEN_SIZE = 256
 BATCH_SIZE = 64
 
-LR = 0.5
+LR = 0.0003
 MAX_GRAD_NORM = 5.0
+
 
 NUM_SAMPLES = 512
 ENC_VOCAB = 24133
 DEC_VOCAB = 22879
+NUM_CLASSES=5
+EMBEDDING_SIZE=256

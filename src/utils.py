@@ -7,9 +7,9 @@ import random
 
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
-from matplotlib import pyplot as plt
-import numpy as np
-import tensorflow as tf
+#from matplotlib import pyplot as plt
+#import numpy as np
+#import tensorflow as tf
 
 
 def safe_mkdir(path):
