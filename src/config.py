@@ -1,7 +1,9 @@
 
 # parameters for processing the dataset
-train_DATA_PATH = '../data/trump_tweets.txt'
-train_label_path= '../data/labels.txt'
+#train_DATA_PATH = '../data/trump_tweets.txt'
+train_DATA_PATH = '../data/kaggle/training.txt'
+#train_label_path= '../data/labels.txt'
+train_label_path= '../data/kaggle/labels.txt'
 
 inference_DATA_PATH ='../data/trump_tweets_short_test.txt'
 inference_label_path='../data/labels_test.txt'
@@ -10,7 +12,7 @@ inference_result_path='../data/labels_result_test.txt'
 OUTPUT_FILE = 'output_convo.txt'
 PROCESSED_PATH = 'processed'
 
-MODEL_NAME='CNN'
+MODEL_NAME='GRU'
 
 CPT_PATH = '../checkpoints/'+MODEL_NAME
 

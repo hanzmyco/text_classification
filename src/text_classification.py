@@ -32,6 +32,7 @@ def main():
             vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
             index_words = word2vec_utils.convert_words_to_index(actual_text, vocab, config.NUM_STEPS)
             lm.train_index_words = index_words
+            lm.vocab_size = vocab_size
 
             lm.create_model()
             lm.train()
@@ -43,6 +44,7 @@ def main():
             vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
             index_words = word2vec_utils.convert_words_to_index(actual_text, vocab, config.NUM_STEPS)
             lm.inference_index_words = index_words
+            lm.vocab_size = vocab_size
 
             lm.create_model()
             lm.inference()

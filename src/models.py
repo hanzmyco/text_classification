@@ -21,7 +21,7 @@ class BaseModel(object):
         self.skip_step = 1
         self.len_generated = 200
         self.gstep = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
-        self.num_classes = 2
+        self.num_classes = 5
         self.out_state = None
         self.in_state = None
         self.sample = None

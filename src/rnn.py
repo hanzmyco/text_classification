@@ -3,7 +3,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import sys
 sys.path.append('..')
 import tensorflow as tf
-#import utils
 import models
 
 
@@ -28,5 +27,3 @@ class RNN(models.BaseModel):
 
     def get_logits(self):
         self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1], self.num_classes, None)
-
-
