@@ -181,11 +181,10 @@ def build_vocab(filename, normalize_digits=False):
 
     sorted_vocab = sorted(vocab, key=vocab.get, reverse=True)
     with open(out_path, 'w') as f:
-        f.write('<pad>' + '\n')
         f.write('<unk>' + '\n')
         f.write('<s>' + '\n')
         f.write('<\s>' + '\n')
-        index = 4
+        index = 3
         for word in sorted_vocab:
             if vocab[word] < config.THRESHOLD:
                 with open('config.py', 'a') as cf:
@@ -221,14 +220,17 @@ def token2id(data, mode):
 
     lines = in_file.read().splitlines()
     for line in lines:
-        if mode == 'dec':  # we only care about '<s>' and </s> in encoder
-            ids = [vocab['<s>']]
-        else:
-            ids = []
+        #if mode == 'dec':  # we only care about '<s>' and </s> in encoder
+        ids = [vocab['<s>']]
+        #else:
+        #    ids = []
         ids.extend(sentence2id(vocab, line))
+
         # ids.extend([vocab.get(token, vocab['<unk>']) for token in basic_tokenizer(line)])
-        if mode == 'dec':
-            ids.append(vocab['<\s>'])
+
+
+        #if mode == 'dec':
+        ids.append(vocab['<\s>'])
         out_file.write(' '.join(str(id_) for id_ in ids) + '\n')
 
 
@@ -240,14 +242,11 @@ def prepare_raw_data():
     prepare_dataset(questions, answers)
 
 
-def process_data():
+def process_data(file_names):
     print('Preparing data to be model-ready ...')
-    build_vocab('train.enc.tok')
-    build_vocab('train.dec.tok')
-    token2id('train', 'enc')
-    token2id('train', 'dec')
-    token2id('test', 'enc')
-    token2id('test', 'dec')
+    for file_name in file_names:
+        build_vocab(file_name)
+    token2id('train', 'txt')
 
 
 def load_data(enc_filename, dec_filename, max_training_size=None):
@@ -316,5 +315,5 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 
 
 if __name__ == '__main__':
-    tokenize_data([config.TRAIN_DATA_NAME,config.INFERENCE_DATA_NAME])
-    #process_data()
+    #tokenize_data([config.TRAIN_DATA_NAME,config.INFERENCE_DATA_NAME])
+    process_data([config.TRAIN_DATA_NAME+'.tok'])

@@ -5,8 +5,8 @@ DATA_PATH = '../data/kaggle/'
 TRAIN_DATA_NAME='train.txt'
 TRAIN_LABEL_NAME= 'labels.txt'
 
-INFERENCE_DATA_NAME ='trump_tweets_short_test.txt'
-INFERENCE_LABEL_NAME='labels_test.txt'
+INFERENCE_DATA_NAME ='train.txt'
+INFERENCE_LABEL_NAME='labels.txt'
 INFERENCE_RESULT_NAME='labels_result_test.txt'
 
 
