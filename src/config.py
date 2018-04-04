@@ -1,6 +1,5 @@
 
 # parameters for processing the dataset
-#train_DATA_PATH = '../data/trump_tweets.txt'
 DATA_PATH = '../data/kaggle/'
 TRAIN_DATA_NAME='train.txt'
 TRAIN_LABEL_NAME= 'labels.txt'

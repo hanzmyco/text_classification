@@ -315,5 +315,5 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 
 
 if __name__ == '__main__':
-    #tokenize_data([config.TRAIN_DATA_NAME,config.INFERENCE_DATA_NAME])
+    tokenize_data([config.TRAIN_DATA_NAME,config.INFERENCE_DATA_NAME])
     process_data([config.TRAIN_DATA_NAME+'.tok'])
