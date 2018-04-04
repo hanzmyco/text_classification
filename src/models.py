@@ -16,17 +16,17 @@ class BaseModel(object):
         self.seq = tf.placeholder(tf.int32, [None, None])
         self.label = tf.placeholder(tf.int32, [None, None])
         self.temp = tf.constant(1.5)
-        self.batch_size = 10
-        self.lr = 0.0003
+        self.batch_size = config.BATCH_SIZE
+        self.lr = config.LR
         self.skip_step = 1
         self.len_generated = 200
         self.gstep = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
-        self.num_classes = 5
+        self.num_classes = config.NUM_CLASSES
         self.out_state = None
         self.in_state = None
         self.sample = None
-        self.num_steps = 10  # for RNN unrolled, actually use it for cut down
-        self.embedding_size = 10
+        self.num_steps = config.NUM_STEPS  # for RNN unrolled, actually use it for cut down
+        self.embedding_size = config.EMBEDDING_SIZE
 
     def __init__(self, model):
         pass
@@ -62,9 +62,7 @@ class BaseModel(object):
         loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
                                                        labels=self.label)
         self.loss = tf.reduce_sum(loss)
-        # sample the next character from Maxwell-Boltzmann Distribution
-        # with temperature temp. It works equally well without tf.exp
-        #self.sample = tf.multinomial(tf.exp(self.logits[:, -1] / self.temp), 1)[:, 0]
+
         self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
 
@@ -87,7 +85,7 @@ class BaseModel(object):
             #stream = read_data(self.path, self.vocab, self.num_steps, overlap=self.num_steps // 2)
 
             stream = utils.read_data_ram(self.train_index_words)
-            stream_label = utils.read_label(config.train_label_path)
+            stream_label = utils.read_label(config.DATA_PATH+config.TRAIN_LABEL_NAME)
             data= utils.read_batch(stream, self.batch_size)
             labels = utils.read_batch(stream_label,self.batch_size)
 
@@ -135,10 +133,10 @@ class BaseModel(object):
             # stream = read_data(self.path, self.vocab, self.num_steps, overlap=self.num_steps // 2)
 
             stream = utils.read_data_ram(self.inference_index_words)
-            stream_label = utils.read_label(config.inference_label_path)
+            stream_label = utils.read_label(config.DATA_PATH+config.INFERENCE_LABEL_NAME)
             data = utils.read_batch(stream, self.batch_size)
             labels = utils.read_batch(stream_label, self.batch_size)
-            output_file = open(config.inference_result_path,'a+')
+            output_file = open(config.INFERENCE_RESULT_PATH,'a+')
 
             while True:
 

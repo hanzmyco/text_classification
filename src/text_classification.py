@@ -27,7 +27,7 @@ def main():
 
     if args.mode == 'train':
         if not os.path.isdir(config.PROCESSED_PATH):
-            local_dest = config.train_DATA_PATH
+            local_dest = config.DATA_PATH+config.TRAIN_DATA_NAME
             words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
             vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
             index_words = word2vec_utils.convert_words_to_index(actual_text, vocab, config.NUM_STEPS)
@@ -39,7 +39,7 @@ def main():
 
     elif args.mode == 'inference':
         if not os.path.isdir(config.PROCESSED_PATH):
-            local_dest = config.inference_DATA_PATH
+            local_dest = config.DATA_PATH + config.INFERENCE_DATA_NAME
             words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
             vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
             index_words = word2vec_utils.convert_words_to_index(actual_text, vocab, config.NUM_STEPS)
