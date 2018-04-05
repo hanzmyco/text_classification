@@ -182,9 +182,7 @@ def build_vocab(filename, normalize_digits=False):
     sorted_vocab = sorted(vocab, key=vocab.get, reverse=True)
     with open(out_path, 'w') as f:
         f.write('<unk>' + '\n')
-        f.write('<s>' + '\n')
-        f.write('<\s>' + '\n')
-        index = 3
+        index = 1
         for word in sorted_vocab:
             if vocab[word] < config.THRESHOLD:
                 with open('config.py', 'a') as cf:
@@ -204,7 +202,7 @@ def load_vocab(vocab_path):
 
 
 def sentence2id(vocab, line):
-    return [vocab.get(token, vocab['<unk>']) for token in line]
+    return [vocab.get(token, vocab['<unk>']) for token in line.split(' ')]
 
 
 def token2id(data, mode):
@@ -220,17 +218,8 @@ def token2id(data, mode):
 
     lines = in_file.read().splitlines()
     for line in lines:
-        #if mode == 'dec':  # we only care about '<s>' and </s> in encoder
-        ids = [vocab['<s>']]
-        #else:
-        #    ids = []
+        ids = []
         ids.extend(sentence2id(vocab, line))
-
-        # ids.extend([vocab.get(token, vocab['<unk>']) for token in basic_tokenizer(line)])
-
-
-        #if mode == 'dec':
-        ids.append(vocab['<\s>'])
         out_file.write(' '.join(str(id_) for id_ in ids) + '\n')
 
 

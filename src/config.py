@@ -1,10 +1,10 @@
 
 # parameters for processing the dataset
 DATA_PATH = '../data/kaggle/'
-TRAIN_DATA_NAME='train.txt'
+TRAIN_DATA_NAME='train.txt.ids'
 TRAIN_LABEL_NAME= 'labels.txt'
 
-INFERENCE_DATA_NAME ='train.txt'
+INFERENCE_DATA_NAME ='train.txt.ids'
 INFERENCE_LABEL_NAME='labels.txt'
 INFERENCE_RESULT_NAME='labels_result_test.txt'
 
