@@ -73,24 +73,31 @@ class BaseModel(object):
         saver = tf.train.Saver()
         start = time.time()
         min_loss = None
+
         with tf.Session() as sess:
             writer = tf.summary.FileWriter('../graphs/gist', sess.graph)
             sess.run(tf.global_variables_initializer())
+            sess.run(self.train_init)
 
             ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH+ '/checkpoint'))
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
 
             iteration = self.gstep.eval()
+
+            stream_label = utils.read_label(config.DATA_PATH + config.TRAIN_LABEL_NAME)
+            # data= utils.read_batch(stream, self.batch_size)
+            labels = utils.read_batch(stream_label, self.batch_size)
+
+            #for epoch in range(n_epochs):
+            #    step = self.train_one_epoch(sess, saver, self.train_init, writer, epoch, step)
+
             #stream = read_data(self.path, self.vocab, self.num_steps, overlap=self.num_steps // 2)
 
-            stream = utils.read_data_ram(self.train_index_words)
-            stream_label = utils.read_label(config.DATA_PATH+config.TRAIN_LABEL_NAME)
-            data= utils.read_batch(stream, self.batch_size)
-            labels = utils.read_batch(stream_label,self.batch_size)
+            #stream = utils.read_data_ram(self.train_index_words)
 
             while True:
-                batch = next(data)
+
                 label = next(labels)
                 one_hoted_label = []
                 for ite in label:
@@ -100,7 +107,7 @@ class BaseModel(object):
 
 
                 # for batch in read_batch(read_data(DATA_PATH, vocab)):
-                batch_loss, _ = sess.run([self.loss, self.opt], {self.label:one_hoted_label,self.seq: batch})
+                batch_loss, _ = sess.run([self.loss, self.opt], {self.label:one_hoted_label})
                 if (iteration + 1) % self.skip_step == 0:
                     print('Iter {}. \n    Loss {}. Time {}'.format(iteration, batch_loss, time.time() - start))
                     #self.online_infer(sess)
@@ -111,6 +118,7 @@ class BaseModel(object):
                     elif batch_loss < min_loss:
                         saver.save(sess, checkpoint_name, iteration)
                         min_loss = batch_loss
+                #batch = self.train_index_words.get_next()
                 iteration += 1
 
     def _check_restore_parameters(self,sess, saver):
