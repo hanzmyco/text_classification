@@ -26,7 +26,7 @@ def main():
     lm.vocab_size = config.VOCAB_SIZE
 
     if args.mode == 'train':
-        if not os.path.isdir(config.PROCESSED_PATH):
+        #if not os.path.isdir(config.PROCESSED_PATH):
             local_dest = config.PROCESSED_PATH+config.TRAIN_DATA_NAME_PROCESSED
             words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
             vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
@@ -38,7 +38,7 @@ def main():
             lm.train()
 
     elif args.mode == 'inference':
-        if not os.path.isdir(config.PROCESSED_PATH):
+        #if not os.path.isdir(config.PROCESSED_PATH):
             local_dest = config.DATA_PATH + config.INFERENCE_DATA_NAME
             words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
             vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
