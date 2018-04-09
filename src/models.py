@@ -46,7 +46,7 @@ class BaseModel(object):
         self.index_words = word2vec_utils.convert_words_to_index(actual_text, self.vocab, self.num_steps)
         '''
         if one_hot:  # not using embeddign layer
-            embed = tf.one_hot(self.seq, self.vocab_size)
+            embed = self.seq
 
         else:  # using embedding layer
             with tf.name_scope('embed'):

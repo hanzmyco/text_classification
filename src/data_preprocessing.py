@@ -182,7 +182,8 @@ def build_vocab(filename, normalize_digits=False):
     sorted_vocab = sorted(vocab, key=vocab.get, reverse=True)
     with open(out_path, 'w') as f:
         f.write('<unk>' + '\n')
-        index = 1
+        f.write('PAD'+'\n')
+        index = 2
         for word in sorted_vocab:
             if vocab[word] < config.THRESHOLD:
                 with open('config.py', 'a') as cf:
@@ -220,7 +221,8 @@ def token2id(data, mode):
     for line in lines:
         ids = []
         ids.extend(sentence2id(vocab, line))
-        out_file.write(' '.join(str(id_) for id_ in ids) + '\n')
+        padd_input=_pad_input(ids,config.NUM_STEPS)
+        out_file.write(' '.join(str(id_) for id_ in padd_input[:config.NUM_STEPS]) + '\n')
 
 
 def prepare_raw_data():

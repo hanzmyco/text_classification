@@ -7,19 +7,21 @@ from cnn import CNN
 
 import word2vec_utils
 import tensorflow as tf
+import numpy as np
 
 def _parse_function(line):
-    for number in line.split(' '):
+
+    parsed_line = tf.decode_csv(line,config.READ_IN_FORMAT,field_delim=' ',)
+
+    return tf.cast(tf.one_hot(tf.convert_to_tensor(parsed_line),config.VOCAB_SIZE),tf.int32)
 
 
 def get_data(lm,local_dest):
-    dataset=tf.data.TextLineDataset(local_dest)
-
-
-
+    dataset=tf.data.TextLineDataset(local_dest).map(_parse_function)
     batched_dataset = dataset.batch(config.BATCH_SIZE)
     iterator = batched_dataset.make_initializable_iterator()
     lm.seq = iterator.get_next()
+
     lm.train_init = iterator.make_initializer(batched_dataset)
 
 
