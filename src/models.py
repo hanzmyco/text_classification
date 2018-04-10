@@ -78,6 +78,7 @@ class BaseModel(object):
             writer = tf.summary.FileWriter('../graphs/gist', sess.graph)
             sess.run(tf.global_variables_initializer())
             sess.run(self.train_init)
+            sess.run(self.train_init_label)
 
             ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH+ '/checkpoint'))
             if ckpt and ckpt.model_checkpoint_path:
@@ -108,6 +109,8 @@ class BaseModel(object):
                 '''
 
                 # for batch in read_batch(read_data(DATA_PATH, vocab)):
+                #print(sess.run(self.seq))
+                #print(sess.run(self.label))
                 batch_loss, _ = sess.run([self.loss, self.opt])
                 ''',{self.label:one_hoted_label})'''
                 if (iteration + 1) % self.skip_step == 0:

@@ -4,32 +4,8 @@ import config
 import os
 from rnn import RNN
 from cnn import CNN
-
 import word2vec_utils
-import tensorflow as tf
-import numpy as np
-
-def _parse_function(line):
-
-    parsed_line = tf.decode_csv(line,config.READ_IN_FORMAT,field_delim=' ')
-    label = parsed_line[-1:]
-    del parsed_line[-1]
-
-    if config.ONE_HOT:
-        return tf.one_hot(tf.convert_to_tensor(parsed_line), config.VOCAB_SIZE),label
-    else:
-        return tf.cast(parsed_line,tf.int32),label
-    #
-
-
-def get_data(lm,local_dest):
-    dataset=tf.data.TextLineDataset(local_dest).map(_parse_function)
-    batched_dataset = dataset.batch(config.BATCH_SIZE)
-    iterator = batched_dataset.make_initializable_iterator()
-    lm.seq,lm.label = iterator.get_next()
-
-    lm.train_init = iterator.make_initializer(batched_dataset)
-
+import data
 
 
 def main():
@@ -53,6 +29,7 @@ def main():
     if args.mode == 'train':
         if os.path.isdir(config.PROCESSED_PATH):
             local_dest = config.PROCESSED_PATH+config.TRAIN_DATA_NAME_PROCESSED
+            local_dest_label = config.DATA_PATH + config.TRAIN_LABEL_NAME
 
             '''
                 words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
@@ -62,8 +39,8 @@ def main():
                 lm.vocab_size = vocab_size
             '''
 
-            get_data(lm,local_dest)
-            lm.create_model(config.ONE_HOT)
+            data.get_data(lm,local_dest,local_dest_label)
+            lm.create_model(config.ONE_HOT_TAG)
             lm.train()
 
     elif args.mode == 'inference':
