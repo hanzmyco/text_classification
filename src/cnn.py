@@ -16,7 +16,7 @@ class CNN(models.BaseModel):
         self.dropout_keep_prob = 1.0
 
 
-        if config.ONE_HOT:
+        if config.ONE_HOT_TAG:
             self.kernel_width = config.VOCAB_SIZE
         else:
             self.kernel_width = config.EMBEDDING_SIZE

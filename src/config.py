@@ -14,6 +14,7 @@ INFERENCE_RESULT_NAME='labels_result_test.txt'
 OUTPUT_FILE = 'output_convo.txt'
 PROCESSED_PATH = '../data/processed/'
 
+#MODEL_NAME='CNN'
 MODEL_NAME='GRU'
 
 CPT_PATH = '../checkpoints/'+MODEL_NAME
@@ -40,7 +41,7 @@ CONTRACTIONS = [("i ' m ", "i 'm "), ("' d ", "'d "), ("' s ", "'s "),
 
 NUM_LAYERS = 2
 HIDDEN_SIZE = 256
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 
 LR = 0.0003
 MAX_GRAD_NORM = 5.0
@@ -52,6 +53,6 @@ DEC_VOCAB = 22879
 NUM_CLASSES=5
 EMBEDDING_SIZE=256
 
-READ_IN_FORMAT=[[0]]*(NUM_STEPS+1)
+READ_IN_FORMAT=[[0]]*(NUM_STEPS)
 
-ONE_HOT=True
+ONE_HOT_TAG=False
