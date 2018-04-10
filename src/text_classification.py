@@ -11,16 +11,22 @@ import numpy as np
 
 def _parse_function(line):
 
-    parsed_line = tf.decode_csv(line,config.READ_IN_FORMAT,field_delim=' ',)
+    parsed_line = tf.decode_csv(line,config.READ_IN_FORMAT,field_delim=' ')
+    label = parsed_line[-1:]
+    del parsed_line[-1]
 
-    return tf.cast(tf.one_hot(tf.convert_to_tensor(parsed_line),config.VOCAB_SIZE),tf.int32)
+    if config.ONE_HOT:
+        return tf.one_hot(tf.convert_to_tensor(parsed_line), config.VOCAB_SIZE),label
+    else:
+        return tf.cast(parsed_line,tf.int32),label
+    #
 
 
 def get_data(lm,local_dest):
     dataset=tf.data.TextLineDataset(local_dest).map(_parse_function)
     batched_dataset = dataset.batch(config.BATCH_SIZE)
     iterator = batched_dataset.make_initializable_iterator()
-    lm.seq = iterator.get_next()
+    lm.seq,lm.label = iterator.get_next()
 
     lm.train_init = iterator.make_initializer(batched_dataset)
 
@@ -45,23 +51,23 @@ def main():
     lm.vocab_size = config.VOCAB_SIZE
 
     if args.mode == 'train':
-        #if not os.path.isdir(config.PROCESSED_PATH):
-        local_dest = config.PROCESSED_PATH+config.TRAIN_DATA_NAME_PROCESSED
+        if os.path.isdir(config.PROCESSED_PATH):
+            local_dest = config.PROCESSED_PATH+config.TRAIN_DATA_NAME_PROCESSED
 
-        '''
-            words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
-            vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
-            index_words = word2vec_utils.convert_words_to_index(actual_text, vocab, config.NUM_STEPS)
-            lm.train_index_words = index_words
-            lm.vocab_size = vocab_size
-        '''
+            '''
+                words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
+                vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
+                index_words = word2vec_utils.convert_words_to_index(actual_text, vocab, config.NUM_STEPS)
+                lm.train_index_words = index_words
+                lm.vocab_size = vocab_size
+            '''
 
-        get_data(lm,local_dest)
-        lm.create_model()
-        lm.train()
+            get_data(lm,local_dest)
+            lm.create_model(config.ONE_HOT)
+            lm.train()
 
     elif args.mode == 'inference':
-        if not os.path.isdir(config.PROCESSED_PATH):
+        if os.path.isdir(config.PROCESSED_PATH):
             local_dest = config.DATA_PATH + config.INFERENCE_DATA_NAME_PROCESSED
             words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
             vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')

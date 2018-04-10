@@ -23,9 +23,9 @@ class RNN(models.BaseModel):
             # this line to calculate the real length of seq
             # all seq are padded to be of the same length, which is num_steps
 
-            #length = tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1)
-            #length=[config.NUM_STEPS]*config.BATCH_SIZE
-            self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, None, self.in_state)
+            length = tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1)
+
+            self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, length, self.in_state)
 
     def get_logits(self):
         self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1], self.num_classes, None)

@@ -13,7 +13,7 @@ class BaseModel(object):
     def base_init(self,model):
         self.model = model
         self.path = '../data/' + model + '.txt'
-        self.seq = tf.placeholder(tf.int32, [None, None])
+        #self.seq = tf.placeholder(tf.int32, [None, None])
         self.label = tf.placeholder(tf.int32, [None, None])
         self.temp = tf.constant(1.5)
         self.batch_size = config.BATCH_SIZE
@@ -85,9 +85,9 @@ class BaseModel(object):
 
             iteration = self.gstep.eval()
 
-            stream_label = utils.read_label(config.DATA_PATH + config.TRAIN_LABEL_NAME)
+            #stream_label = utils.read_label(config.DATA_PATH + config.TRAIN_LABEL_NAME)
             # data= utils.read_batch(stream, self.batch_size)
-            labels = utils.read_batch(stream_label, self.batch_size)
+            #labels = utils.read_batch(stream_label, self.batch_size)
 
             #for epoch in range(n_epochs):
             #    step = self.train_one_epoch(sess, saver, self.train_init, writer, epoch, step)
@@ -98,16 +98,18 @@ class BaseModel(object):
 
             while True:
 
-                label = next(labels)
+                #label = next(labels)
+                '''
                 one_hoted_label = []
                 for ite in label:
                     single_line = [0]*self.num_classes
                     single_line[ite]=1
                     one_hoted_label.append(single_line)
-
+                '''
 
                 # for batch in read_batch(read_data(DATA_PATH, vocab)):
-                batch_loss, _ = sess.run([self.loss, self.opt], {self.label:one_hoted_label})
+                batch_loss, _ = sess.run([self.loss, self.opt])
+                ''',{self.label:one_hoted_label})'''
                 if (iteration + 1) % self.skip_step == 0:
                     print('Iter {}. \n    Loss {}. Time {}'.format(iteration, batch_loss, time.time() - start))
                     #self.online_infer(sess)
