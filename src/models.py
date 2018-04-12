@@ -13,8 +13,6 @@ class BaseModel(object):
     def base_init(self,model):
         self.model = model
         self.path = '../data/' + model + '.txt'
-        #self.seq = tf.placeholder(tf.int32, [None, None])
-        self.label = tf.placeholder(tf.int32, [None, None])
         self.temp = tf.constant(1.5)
         self.batch_size = config.BATCH_SIZE
         self.lr = config.LR

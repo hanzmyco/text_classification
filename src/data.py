@@ -26,3 +26,24 @@ def get_data(lm,local_dest,local_dest_label):
     lm.label = iterator_label.get_next()
     lm.train_init_label = iterator_label.make_initializer(batched_dataset_label)
 
+def _parse_embedding_function(line):
+    parsed_line = tf.decode_csv(line,config.PRETRAIN_EMBEDDING_FORMAT,field_delim=config.FIELD_DELIM)
+    del parsed_line[0]
+    return tf.cast(parsed_line,tf.float32)
+
+def get_pretrain_embedding(lm,local_dest):
+    dataset = tf.data.TextLineDataset(local_dest).map(_parse_data_function)
+    all_embedding = dataset.batch(config.PRETRAIN_EMBED_VOCAB_SIZE)
+    iterator = all_embedding.make_initializable_iterator()
+    lm.embedding = iterator.get_next()
+    init = iterator.make_initializer(all_embedding)
+
+    with tf.Session() as sess:
+        #sess.run()
+        print(sess.run(lm.embedding))
+
+
+
+
+
+

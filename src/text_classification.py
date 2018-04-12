@@ -39,6 +39,9 @@ def main():
                 lm.vocab_size = vocab_size
             '''
 
+            embd_dest = config.PRETRAIN_EMBD_PATH
+            data.get_pretrain_embedding(lm,embd_dest)
+
             data.get_data(lm,local_dest,local_dest_label)
             lm.create_model(config.ONE_HOT_TAG)
             lm.train()
