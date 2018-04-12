@@ -38,48 +38,6 @@ def get_lines():
     return id2line
 
 
-def get_convos():
-    """ Get conversations from the raw data """
-    file_path = os.path.join(config.DATA_PATH, config.CONVO_FILE)
-    convos = []
-    with open(file_path, 'r') as f:
-        for line in f.readlines():
-            parts = line.split(' +++$+++ ')
-            if len(parts) == 4:
-                convo = []
-                for line in parts[3][1:-2].split(', '):
-                    convo.append(line[1:-1])
-                convos.append(convo)
-
-    return convos
-
-
-def question_answers(id2line, convos):
-    """ Divide the dataset into two sets: questions and answers. """
-    questions, answers = [], []
-    seen_questions, seen_answers = set(), set()
-    repeated = 0
-    for convo in convos:
-        for index, line in enumerate(convo[:-1]):
-            if not convo[index] in id2line or not convo[index + 1] in id2line:
-                continue
-            q = id2line[convo[index]]
-            a = id2line[convo[index + 1]]
-            # if q in seen_questions or a in seen_answers:
-            if q in seen_questions:
-                print('Q:', q)
-                print('A:', a)
-                repeated += 1
-                continue
-            questions.append(q)
-            answers.append(a)
-            seen_questions.add(q)
-            # seen_answers.add(a)
-    assert len(questions) == len(answers)
-    print('Total repeated:', repeated)
-    return questions, answers
-
-
 def tokenize_helper(line):
     tokens = basic_tokenizer(line)
     text = ' '.join(tokens)
@@ -197,7 +155,7 @@ def build_vocab(filename, normalize_digits=False):
 
 
 def load_vocab(vocab_path):
-    with open(vocab_path, 'r') as f:
+    with open(vocab_path, 'r',encoding='utf-8') as f:
         words = f.read().splitlines()
     return words, {words[i]: i for i in range(len(words))}
 
@@ -209,9 +167,14 @@ def sentence2id(vocab, line):
 def token2id(data, mode):
     """ Convert all the tokens in the data into their corresponding
     index in the vocabulary. """
-    vocab_path = 'vocab.' + mode
+    if config.PRETRAIN_EMBD_TAG:
+        vocab_path = 'vocab.embd.' + mode
+        out_path = data + '.embd.' + mode + '.ids'
+    else:
+        vocab_path = 'vocab.' + mode
+        out_path = data + '.' + mode + '.ids'
+
     in_path = data + '.' + mode + '.tok'
-    out_path = data + '.' + mode + '.ids'
 
     _, vocab = load_vocab(os.path.join(config.PROCESSED_PATH, vocab_path))
     in_file = open(os.path.join(config.PROCESSED_PATH, in_path), 'r')
@@ -225,18 +188,39 @@ def token2id(data, mode):
         out_file.write(' '.join(str(id_) for id_ in padd_input[:config.NUM_STEPS]) + '\n')
 
 
-def prepare_raw_data():
-    print('Preparing raw data into train set and test set ...')
-    id2line = get_lines()
-    convos = get_convos()
-    questions, answers = question_answers(id2line, convos)
-    prepare_dataset(questions, answers)
+def loadGloVe(filename,vocab_tag=False,embedding=False):
+    vocab = []
+    embd = []
+    file = open(filename,'r',encoding='utf8')
+
+    for line in file.readlines():
+        row = line.strip().split(' ')
+        if vocab_tag:
+            vocab.append(row[0])
+        if embedding:
+            embd.append(row[1:])
+    print('Loaded GloVe!')
+    file.close()
+    return vocab,embd
+
+def build_vocab_from_pretrain_embd(file_name):
+    vocab,_ = loadGloVe(file_name,vocab_tag=True)
+    out_file=open('../data/Processed/vocab.embd.txt','w+',encoding='utf-8')
+    out_file.write('<unk>\n')
+    out_file.write('PAD\n')
+
+    for ite in vocab:
+        out_file.write(ite+'\n')
 
 
 def process_data(file_names):
     print('Preparing data to be model-ready ...')
     for file_name in file_names:
-        build_vocab(file_name)
+        if config.PRETRAIN_EMBD_TAG:
+            build_vocab_from_pretrain_embd(config.PRETRAIN_EMBD_PATH)
+        else:
+            build_vocab(file_name)
+
     token2id('train', 'txt')
 
 

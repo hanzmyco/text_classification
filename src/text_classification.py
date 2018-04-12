@@ -9,7 +9,6 @@ import data
 
 
 def main():
-    print('start')
     # set up check points location
     utils.safe_mkdir('../checkpoints')
     utils.safe_mkdir(config.CPT_PATH)
@@ -26,9 +25,7 @@ def main():
     lm.vocab_size = config.VOCAB_SIZE
 
     if args.mode == 'train':
-        print(config.PROCESSED_PATH)
         if os.path.isdir(config.PROCESSED_PATH):
-            print('start')
 
             local_dest = config.PROCESSED_PATH+config.TRAIN_DATA_NAME_PROCESSED
             local_dest_label = config.DATA_PATH + config.TRAIN_LABEL_NAME
@@ -40,7 +37,6 @@ def main():
                 lm.train_index_words = index_words
                 lm.vocab_size = vocab_size
             '''
-            print('start2')
             embd_dest = config.PRETRAIN_EMBD_PATH
             data.get_pretrain_embedding(lm,embd_dest)
 

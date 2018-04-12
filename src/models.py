@@ -48,9 +48,15 @@ class BaseModel(object):
 
         else:  # using embedding layer
             with tf.name_scope('embed'):
-                embed_matrix = tf.get_variable('embed_matrix',
-                                               shape=[self.vocab_size, self.embedding_size],
-                                               initializer=tf.random_uniform_initializer())
+                if not config.PRETRAIN_EMBD_TAG:
+                    embed_matrix = tf.get_variable('embed_matrix',
+                                                   shape=[self.vocab_size, self.embedding_size],
+                                                   initializer=tf.random_uniform_initializer())
+                else:
+                    embed_matrix = tf.Variable(tf.constant(self.pretrain_embd,
+                                                           shape=[self.vocab_size, self.embedding_size]),
+                                               trainable=False,name='embed_matrix')
+
                 embed = tf.nn.embedding_lookup(embed_matrix, self.seq, name='embedding')
 
         self.create_actual_model(embed)
