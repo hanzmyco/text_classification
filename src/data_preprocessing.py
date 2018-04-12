@@ -198,7 +198,7 @@ def loadGloVe(filename,vocab_tag=False,embedding=False):
         if vocab_tag:
             vocab.append(row[0])
         if embedding:
-            embd.append(row[1:])
+            embd.append([float(ite) for ite in row[1:]])
     print('Loaded GloVe!')
     file.close()
     return vocab,embd

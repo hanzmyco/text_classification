@@ -25,6 +25,7 @@ class BaseModel(object):
         self.sample = None
         self.num_steps = config.NUM_STEPS  # for RNN unrolled, actually use it for cut down
         self.embedding_size = config.EMBEDDING_SIZE
+        self.vocab_size=config.VOCAB_SIZE
 
     def __init__(self, model):
         pass
@@ -53,8 +54,7 @@ class BaseModel(object):
                                                    shape=[self.vocab_size, self.embedding_size],
                                                    initializer=tf.random_uniform_initializer())
                 else:
-                    embed_matrix = tf.Variable(tf.constant(self.pretrain_embd,
-                                                           shape=[self.vocab_size, self.embedding_size]),
+                    embed_matrix = tf.Variable(self.pretrain_embd,
                                                trainable=False,name='embed_matrix')
 
                 embed = tf.nn.embedding_lookup(embed_matrix, self.seq, name='embedding')

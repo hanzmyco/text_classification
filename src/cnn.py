@@ -16,13 +16,11 @@ class CNN(models.BaseModel):
         self.dropout_keep_prob = 1.0
 
 
-        if config.ONE_HOT_TAG:
-            self.kernel_width = config.VOCAB_SIZE
-        else:
-            self.kernel_width = config.EMBEDDING_SIZE
-
-
     def create_actual_model(self, embd):
+        if config.ONE_HOT_TAG:
+            self.kernel_width = self.vocab_size
+        else:
+            self.kernel_width = self.embedding_size
         pooled_outputs=[]
         for i,kernel_size in enumerate(self.kernel_sizes):
             with tf.name_scope("cnn_max_pool-%s" % kernel_size):

@@ -35,7 +35,7 @@ def get_pretrain_embedding(lm,local_dest):
     embd.insert(0, [1] * config.PRETRAIN_EMBD_SIZE)
     embd.insert(0, [0] * config.PRETRAIN_EMBD_SIZE)
     lm.embedding_size=config.PRETRAIN_EMBD_SIZE
-    lm.pretrain_embd=tf.cast(tf.convert_to_tensor(embd),tf.float32)
+    lm.pretrain_embd=tf.convert_to_tensor(embd)
     lm.vocab_size=config.PRETRAIN_EMBD_VOCAB_SIZE
 
 
