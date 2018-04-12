@@ -32,14 +32,14 @@ def _parse_embedding_function(line):
     return tf.cast(parsed_line,tf.float32)
 
 def get_pretrain_embedding(lm,local_dest):
-    dataset = tf.data.TextLineDataset(local_dest).map(_parse_data_function)
+    dataset = tf.data.TextLineDataset(local_dest).map(_parse_embedding_function)
     all_embedding = dataset.batch(config.PRETRAIN_EMBED_VOCAB_SIZE)
     iterator = all_embedding.make_initializable_iterator()
     lm.embedding = iterator.get_next()
     init = iterator.make_initializer(all_embedding)
 
     with tf.Session() as sess:
-        #sess.run()
+        sess.run(init)
         print(sess.run(lm.embedding))
 
 
