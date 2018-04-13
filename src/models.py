@@ -94,12 +94,11 @@ class BaseModel(object):
         return iteration
 
     def train_2(self,n_epochs):
-        saver = tf.train.Saver()
+        writer = tf.summary.FileWriter('../graphs/gist', tf.get_default_graph())
 
         with tf.Session() as sess:
-            writer = tf.summary.FileWriter('../graphs/gist', sess.graph)
             sess.run(tf.global_variables_initializer())
-
+            saver = tf.train.Saver()
             ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH+ '/checkpoint'))
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
@@ -108,7 +107,7 @@ class BaseModel(object):
             for epoch in range(n_epochs):
                 iteration = self.train_one_epoch(sess, saver, self.train_init,self.train_init_label, writer, epoch, iteration)
 
-            writer.close()
+        writer.close()
 
     def train(self):
         saver = tf.train.Saver()
