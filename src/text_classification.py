@@ -28,7 +28,7 @@ def main():
         if os.path.isdir(config.PROCESSED_PATH):
 
             local_dest = config.PROCESSED_PATH+config.TRAIN_DATA_NAME_PROCESSED
-            local_dest_label = config.DATA_PATH + config.TRAIN_LABEL_NAME
+            local_dest_label = config.PROCESSED_PATH + config.TRAIN_LABEL_NAME
 
             if config.PRETRAIN_EMBD_TAG:  # use start pretrain embd or not
                 embd_dest = config.PRETRAIN_EMBD_PATH

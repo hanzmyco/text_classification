@@ -44,8 +44,11 @@ def tokenize_helper(line):
     return text
 
 
-def tokenize_data(file_names):
+def tokenize_data(file_names,origin_labels,delete_repeated_labels_filename):
     print('Tokenizing the data ...')
+    repeated_line_ids=set()
+    deleted_labels_file = open(delete_repeated_labels_filename,'w')
+
     for file_name in file_names:
         seen_texts = set()
         actual_file=config.DATA_PATH+file_name
@@ -62,11 +65,19 @@ def tokenize_data(file_names):
             if train_clean in seen_texts:
                 print(train_clean)
                 repeated += 1
+                repeated_line_ids.add(i)
                 continue
             seen_texts.add(train_clean)
             out_file.write(train_clean + '\n')
 
         print('Total repeated in', actual_file, ':', repeated)
+        label_file = open(origin_labels,'r').readlines()
+        for index, ite in enumerate(label_file):
+            if index not in repeated_line_ids:
+                deleted_labels_file.write(ite)
+
+
+
 
 
 def prepare_dataset(questions, answers):
@@ -141,6 +152,7 @@ def build_vocab(filename, normalize_digits=False):
         f.write('PAD'+'\n')
         index = 2
         for word in sorted_vocab:
+            '''
             if vocab[word] < config.THRESHOLD:
                 with open('config.py', 'a') as cf:
                     if 'enc' in filename:
@@ -148,6 +160,7 @@ def build_vocab(filename, normalize_digits=False):
                     else:
                         cf.write('DEC_VOCAB = ' + str(index) + '\n')
                 break
+            '''
             f.write(word + '\n')
             index += 1
 
@@ -288,5 +301,6 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 
 
 if __name__ == '__main__':
-    tokenize_data([config.TRAIN_DATA_NAME,config.INFERENCE_DATA_NAME])
+    tokenize_data([config.TRAIN_DATA_NAME],config.DATA_PATH+config.TRAIN_LABEL_NAME,config.PROCESSED_PATH+config.TRAIN_LABEL_NAME)
     process_data([config.TRAIN_DATA_NAME+'.tok'])
+
