@@ -80,7 +80,7 @@ class BaseModel(object):
             while True:
                 batch_loss, _ = sess.run([self.loss, self.opt])
                 if (iteration + 1) % self.skip_step == 0:
-                    print('Iter {}. \n    Loss {}'.format(iteration, batch_loss))
+                    #print('Iter {}. \n    Loss {}'.format(iteration, batch_loss))
                 iteration += 1
                 total_loss +=batch_loss
                 n_batches +=1
