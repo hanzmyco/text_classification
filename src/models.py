@@ -38,13 +38,8 @@ class BaseModel(object):
         pass
 
     def create_model(self,one_hot=False):
-        '''
-        local_dest = config.DATA_PATH
-        words, self.vocab_size, actual_text = word2vec_utils.read_data(local_dest)
-        self.vocab, _ = word2vec_utils.build_vocab(words, self.vocab_size, '../visualization')
-        self.index_words = word2vec_utils.convert_words_to_index(actual_text, self.vocab, self.num_steps)
-        '''
-        if one_hot:  # not using embeddign layer
+
+        if one_hot:  # not using embedding layer
             embed = self.seq
 
         else:  # using embedding layer
@@ -57,7 +52,7 @@ class BaseModel(object):
 
                 else:
                     embed_matrix = tf.Variable(self.pretrain_embd,
-                                               trainable=True,name='embed_matrix')
+                                               trainable=config.PRETRAIN_EMBD_TRAINABLE,name='embed_matrix')
                     '''
                     #make sure the pretrain embd is load correctly
                     with tf.Session() as sess:
@@ -77,9 +72,6 @@ class BaseModel(object):
         self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
 
-
-
-
     def train(self):
         saver = tf.train.Saver()
         start = time.time()
@@ -97,36 +89,16 @@ class BaseModel(object):
 
             iteration = self.gstep.eval()
 
-            #stream_label = utils.read_label(config.DATA_PATH + config.TRAIN_LABEL_NAME)
-            # data= utils.read_batch(stream, self.batch_size)
-            #labels = utils.read_batch(stream_label, self.batch_size)
-
             #for epoch in range(n_epochs):
             #    step = self.train_one_epoch(sess, saver, self.train_init, writer, epoch, step)
 
-            #stream = read_data(self.path, self.vocab, self.num_steps, overlap=self.num_steps // 2)
-
-            #stream = utils.read_data_ram(self.train_index_words)
-
             while True:
 
-                #label = next(labels)
-                '''
-                one_hoted_label = []
-                for ite in label:
-                    single_line = [0]*self.num_classes
-                    single_line[ite]=1
-                    one_hoted_label.append(single_line)
-                '''
-
-                # for batch in read_batch(read_data(DATA_PATH, vocab)):
-                #print(sess.run(self.seq))
-                #print(sess.run(self.label))
                 batch_loss, _ = sess.run([self.loss, self.opt])
-                ''',{self.label:one_hoted_label})'''
+
                 if (iteration + 1) % self.skip_step == 0:
                     print('Iter {}. \n    Loss {}. Time {}'.format(iteration, batch_loss, time.time() - start))
-                    #self.online_infer(sess)
+
                     start = time.time()
                     checkpoint_name = config.CPT_PATH+'/'
                     if min_loss is None:
@@ -134,7 +106,6 @@ class BaseModel(object):
                     elif batch_loss < min_loss:
                         saver.save(sess, checkpoint_name, iteration)
                         min_loss = batch_loss
-                #batch = self.train_index_words.get_next()
                 iteration += 1
 
     def _check_restore_parameters(self,sess, saver):
@@ -182,20 +153,3 @@ class BaseModel(object):
 
 
 
-
-
-    def online_infer(self, sess):
-        """ Generate sequence one character at a time, based on the previous character
-        """
-        for seed in ['Hillary', 'I', 'R', 'T', '@', 'N', 'M', '.', 'G', 'A', 'W']:
-            sentence = seed
-            state = None
-            for _ in range(self.len_generated):
-                batch = [utils.vocab_encode(sentence[-1], self.vocab)]
-                feed = {self.seq: batch}
-                if state is not None:  # for the first decoder step, the state is None
-                    for i in range(len(state)):
-                        feed.update({self.in_state[i]: state[i]})
-                index, state = sess.run([self.sample, self.out_state], feed)
-                sentence += utils.vocab_decode(index, self.vocab)
-            print('\t' + sentence)
