@@ -36,7 +36,7 @@ def main():
 
             data.get_data(lm,local_dest,local_dest_label)
             lm.create_model(config.ONE_HOT_TAG)
-            lm.train_2(10)
+            lm.train_2(config.EPOCH_NUM)
 
     elif args.mode == 'inference':
         if os.path.isdir(config.PROCESSED_PATH):
