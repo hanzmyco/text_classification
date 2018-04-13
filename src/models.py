@@ -49,7 +49,6 @@ class BaseModel(object):
                                                    shape=[self.vocab_size, self.embedding_size],
                                                    initializer=tf.random_uniform_initializer())
 
-
                 else:
                     embed_matrix = tf.Variable(self.pretrain_embd,
                                                trainable=config.PRETRAIN_EMBD_TRAINABLE,name='embed_matrix')
@@ -71,6 +70,45 @@ class BaseModel(object):
 
         self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
+    def train_one_epoch(self,sess,saver,init,init_label,writer,epoch,iteration):
+        start_time = time.time()
+        sess.run([init,init_label])
+        total_loss=0
+        n_batches = 0
+        checkpoint_name = config.CPT_PATH + '/'
+        try:
+            while True:
+                batch_loss, _ = sess.run([self.loss, self.opt])
+                if (iteration + 1) % self.skip_step == 0:
+                    print('Iter {}. \n    Loss {}'.format(iteration, batch_loss))
+                iteration += 1
+                total_loss +=batch_loss
+                n_batches +=1
+
+        except tf.errors.OutOfRangeError:
+            pass
+
+        saver.save(sess, checkpoint_name, iteration)
+        print('Average loss at epoch {0}: {1}'.format(epoch, total_loss / n_batches))
+        print('Took: {0} seconds'.format(time.time() - start_time))
+        return iteration
+
+    def train_2(self,n_epochs):
+        saver = tf.train.Saver()
+
+        with tf.Session() as sess:
+            writer = tf.summary.FileWriter('../graphs/gist', sess.graph)
+            sess.run(tf.global_variables_initializer())
+
+            ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH+ '/checkpoint'))
+            if ckpt and ckpt.model_checkpoint_path:
+                saver.restore(sess, ckpt.model_checkpoint_path)
+
+            iteration = self.gstep.eval()
+            for epoch in range(n_epochs):
+                iteration = self.train_one_epoch(sess, saver, self.train_init,self.train_init_label, writer, epoch, iteration)
+
+            writer.close()
 
     def train(self):
         saver = tf.train.Saver()
@@ -89,16 +127,10 @@ class BaseModel(object):
 
             iteration = self.gstep.eval()
 
-            #for epoch in range(n_epochs):
-            #    step = self.train_one_epoch(sess, saver, self.train_init, writer, epoch, step)
-
             while True:
-
                 batch_loss, _ = sess.run([self.loss, self.opt])
-
                 if (iteration + 1) % self.skip_step == 0:
                     print('Iter {}. \n    Loss {}. Time {}'.format(iteration, batch_loss, time.time() - start))
-
                     start = time.time()
                     checkpoint_name = config.CPT_PATH+'/'
                     if min_loss is None:

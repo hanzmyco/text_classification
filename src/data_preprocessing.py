@@ -18,9 +18,7 @@ See readme.md for instruction on how to run the starter code.
 import os
 import random
 import re
-
 import numpy as np
-
 import config
 
 
