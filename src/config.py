@@ -4,26 +4,27 @@ DATA_PATH = '../data/kaggle/'
 TRAIN_DATA_NAME= 'train.txt'
 TRAIN_DATA_NAME_PROCESSED= 'train.txt.ids'
 TRAIN_LABEL_NAME= 'labels.txt'
-
 INFERENCE_DATA_NAME ='train.txt'
 INFERENCE_DATA_NAME_PROCESSED ='train.txt.ids'
 INFERENCE_LABEL_NAME='labels.txt'
 INFERENCE_RESULT_NAME='labels_result_test.txt'
 
 
-OUTPUT_FILE = 'output_convo.txt'
-PROCESSED_PATH = '../data/processed/'
 
+PROCESSED_PATH = '../data/Processed/'
+
+#MODEL_NAME='CNN'
 MODEL_NAME='GRU'
 
 CPT_PATH = '../checkpoints/'+MODEL_NAME
 
-VOCAB_SIZE=36820
+VOCAB_SIZE=15217
 
-THRESHOLD = 1
 
-PAD_ID = 0
-UNK_ID = 1
+
+
+UNK_ID = 0
+PAD_ID = 1
 START_ID = 2
 EOS_ID = 3
 
@@ -39,14 +40,23 @@ CONTRACTIONS = [("i ' m ", "i 'm "), ("' d ", "'d "), ("' s ", "'s "),
 
 NUM_LAYERS = 2
 HIDDEN_SIZE = 256
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 
 LR = 0.0003
 MAX_GRAD_NORM = 5.0
 
 
 NUM_SAMPLES = 512
-ENC_VOCAB = 24133
-DEC_VOCAB = 22879
+
 NUM_CLASSES=5
 EMBEDDING_SIZE=256
+
+READ_IN_FORMAT=[[0]]*(NUM_STEPS)
+ONE_HOT_TAG=False
+EPOCH_NUM = 500
+
+PRETRAIN_EMBD_TAG=False
+PRETRAIN_EMBD_TRAINABLE=False
+PRETRAIN_EMBD_SIZE=50
+PRETRAIN_EMBD_VOCAB_SIZE = 400002
+PRETRAIN_EMBD_PATH ='../data/glove.6B.50d.txt'

@@ -18,9 +18,7 @@ See readme.md for instruction on how to run the starter code.
 import os
 import random
 import re
-
 import numpy as np
-
 import config
 
 
@@ -38,48 +36,6 @@ def get_lines():
     return id2line
 
 
-def get_convos():
-    """ Get conversations from the raw data """
-    file_path = os.path.join(config.DATA_PATH, config.CONVO_FILE)
-    convos = []
-    with open(file_path, 'r') as f:
-        for line in f.readlines():
-            parts = line.split(' +++$+++ ')
-            if len(parts) == 4:
-                convo = []
-                for line in parts[3][1:-2].split(', '):
-                    convo.append(line[1:-1])
-                convos.append(convo)
-
-    return convos
-
-
-def question_answers(id2line, convos):
-    """ Divide the dataset into two sets: questions and answers. """
-    questions, answers = [], []
-    seen_questions, seen_answers = set(), set()
-    repeated = 0
-    for convo in convos:
-        for index, line in enumerate(convo[:-1]):
-            if not convo[index] in id2line or not convo[index + 1] in id2line:
-                continue
-            q = id2line[convo[index]]
-            a = id2line[convo[index + 1]]
-            # if q in seen_questions or a in seen_answers:
-            if q in seen_questions:
-                print('Q:', q)
-                print('A:', a)
-                repeated += 1
-                continue
-            questions.append(q)
-            answers.append(a)
-            seen_questions.add(q)
-            # seen_answers.add(a)
-    assert len(questions) == len(answers)
-    print('Total repeated:', repeated)
-    return questions, answers
-
-
 def tokenize_helper(line):
     tokens = basic_tokenizer(line)
     text = ' '.join(tokens)
@@ -88,8 +44,11 @@ def tokenize_helper(line):
     return text
 
 
-def tokenize_data(file_names):
+def tokenize_data(file_names,origin_labels,delete_repeated_labels_filename):
     print('Tokenizing the data ...')
+    repeated_line_ids=set()
+    deleted_labels_file = open(delete_repeated_labels_filename,'w')
+
     for file_name in file_names:
         seen_texts = set()
         actual_file=config.DATA_PATH+file_name
@@ -106,11 +65,19 @@ def tokenize_data(file_names):
             if train_clean in seen_texts:
                 print(train_clean)
                 repeated += 1
+                repeated_line_ids.add(i)
                 continue
             seen_texts.add(train_clean)
             out_file.write(train_clean + '\n')
 
         print('Total repeated in', actual_file, ':', repeated)
+        label_file = open(origin_labels,'r').readlines()
+        for index, ite in enumerate(label_file):
+            if index not in repeated_line_ids:
+                deleted_labels_file.write(ite)
+
+
+
 
 
 def prepare_dataset(questions, answers):
@@ -182,8 +149,10 @@ def build_vocab(filename, normalize_digits=False):
     sorted_vocab = sorted(vocab, key=vocab.get, reverse=True)
     with open(out_path, 'w') as f:
         f.write('<unk>' + '\n')
-        index = 1
+        f.write('PAD'+'\n')
+        index = 2
         for word in sorted_vocab:
+            '''
             if vocab[word] < config.THRESHOLD:
                 with open('config.py', 'a') as cf:
                     if 'enc' in filename:
@@ -191,12 +160,13 @@ def build_vocab(filename, normalize_digits=False):
                     else:
                         cf.write('DEC_VOCAB = ' + str(index) + '\n')
                 break
+            '''
             f.write(word + '\n')
             index += 1
 
 
 def load_vocab(vocab_path):
-    with open(vocab_path, 'r') as f:
+    with open(vocab_path, 'r',encoding='utf-8') as f:
         words = f.read().splitlines()
     return words, {words[i]: i for i in range(len(words))}
 
@@ -208,9 +178,14 @@ def sentence2id(vocab, line):
 def token2id(data, mode):
     """ Convert all the tokens in the data into their corresponding
     index in the vocabulary. """
-    vocab_path = 'vocab.' + mode
+    if config.PRETRAIN_EMBD_TAG:
+        vocab_path = 'vocab.embd.' + mode
+        out_path = data + '.embd.' + mode + '.ids'
+    else:
+        vocab_path = 'vocab.' + mode
+        out_path = data + '.' + mode + '.ids'
+
     in_path = data + '.' + mode + '.tok'
-    out_path = data + '.' + mode + '.ids'
 
     _, vocab = load_vocab(os.path.join(config.PROCESSED_PATH, vocab_path))
     in_file = open(os.path.join(config.PROCESSED_PATH, in_path), 'r')
@@ -220,21 +195,43 @@ def token2id(data, mode):
     for line in lines:
         ids = []
         ids.extend(sentence2id(vocab, line))
-        out_file.write(' '.join(str(id_) for id_ in ids) + '\n')
+        padd_input=_pad_input(ids,config.NUM_STEPS)
+        out_file.write(' '.join(str(id_) for id_ in padd_input[:config.NUM_STEPS]) + '\n')
 
 
-def prepare_raw_data():
-    print('Preparing raw data into train set and test set ...')
-    id2line = get_lines()
-    convos = get_convos()
-    questions, answers = question_answers(id2line, convos)
-    prepare_dataset(questions, answers)
+def loadGloVe(filename,vocab_tag=False,embedding=False):
+    vocab = []
+    embd = []
+    file = open(filename,'r',encoding='utf8')
+
+    for line in file.readlines():
+        row = line.strip().split(' ')
+        if vocab_tag:
+            vocab.append(row[0])
+        if embedding:
+            embd.append([float(ite) for ite in row[1:]])
+    print('Loaded GloVe!')
+    file.close()
+    return vocab,embd
+
+def build_vocab_from_pretrain_embd(file_name):
+    vocab,_ = loadGloVe(file_name,vocab_tag=True)
+    out_file=open('../data/Processed/vocab.embd.txt','w+',encoding='utf-8')
+    out_file.write('<unk>\n')
+    out_file.write('PAD\n')
+
+    for ite in vocab:
+        out_file.write(ite+'\n')
 
 
 def process_data(file_names):
     print('Preparing data to be model-ready ...')
     for file_name in file_names:
-        build_vocab(file_name)
+        if config.PRETRAIN_EMBD_TAG:
+            build_vocab_from_pretrain_embd(config.PRETRAIN_EMBD_PATH)
+        else:
+            build_vocab(file_name)
+
     token2id('train', 'txt')
 
 
@@ -304,5 +301,6 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 
 
 if __name__ == '__main__':
-    tokenize_data([config.TRAIN_DATA_NAME,config.INFERENCE_DATA_NAME])
+    tokenize_data([config.TRAIN_DATA_NAME],config.DATA_PATH+config.TRAIN_LABEL_NAME,config.PROCESSED_PATH+config.TRAIN_LABEL_NAME)
     process_data([config.TRAIN_DATA_NAME+'.tok'])
+

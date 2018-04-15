@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 import tensorflow as tf
 import models
-
+import config
 
 class RNN(models.BaseModel):
     def __init__(self,model):
@@ -22,7 +22,9 @@ class RNN(models.BaseModel):
 
             # this line to calculate the real length of seq
             # all seq are padded to be of the same length, which is num_steps
+
             length = tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1)
+
             self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, length, self.in_state)
 
     def get_logits(self):

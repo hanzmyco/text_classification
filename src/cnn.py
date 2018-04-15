@@ -4,6 +4,7 @@ import sys
 sys.path.append('..')
 import tensorflow as tf
 import models
+import config
 
 
 
@@ -16,10 +17,14 @@ class CNN(models.BaseModel):
 
 
     def create_actual_model(self, embd):
+        if config.ONE_HOT_TAG:
+            self.kernel_width = self.vocab_size
+        else:
+            self.kernel_width = self.embedding_size
         pooled_outputs=[]
         for i,kernel_size in enumerate(self.kernel_sizes):
             with tf.name_scope("cnn_max_pool-%s" % kernel_size):
-                kernel_shape=[kernel_size,self.embedding_size,1,self.num_filters]
+                kernel_shape=[kernel_size,self.kernel_width,1,self.num_filters]
                 W = tf.Variable(tf.truncated_normal(kernel_shape, stddev=0.1), name="W")
                 b = tf.Variable(tf.constant(0.1, shape=[self.num_filters]), name="b")
                 conv = tf.nn.conv2d(tf.expand_dims(embd,-1),W,strides=[1,1,1,1],padding='VALID',name='conv')

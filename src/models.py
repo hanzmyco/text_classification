@@ -13,8 +13,6 @@ class BaseModel(object):
     def base_init(self,model):
         self.model = model
         self.path = '../data/' + model + '.txt'
-        self.seq = tf.placeholder(tf.int32, [None, None])
-        self.label = tf.placeholder(tf.int32, [None, None])
         self.temp = tf.constant(1.5)
         self.batch_size = config.BATCH_SIZE
         self.lr = config.LR
@@ -27,6 +25,7 @@ class BaseModel(object):
         self.sample = None
         self.num_steps = config.NUM_STEPS  # for RNN unrolled, actually use it for cut down
         self.embedding_size = config.EMBEDDING_SIZE
+        self.vocab_size=config.VOCAB_SIZE
 
     def __init__(self, model):
         pass
@@ -39,20 +38,26 @@ class BaseModel(object):
         pass
 
     def create_model(self,one_hot=False):
-        '''
-        local_dest = config.DATA_PATH
-        words, self.vocab_size, actual_text = word2vec_utils.read_data(local_dest)
-        self.vocab, _ = word2vec_utils.build_vocab(words, self.vocab_size, '../visualization')
-        self.index_words = word2vec_utils.convert_words_to_index(actual_text, self.vocab, self.num_steps)
-        '''
-        if one_hot:  # not using embeddign layer
-            embed = tf.one_hot(self.seq, self.vocab_size)
+
+        if one_hot:  # not using embedding layer
+            embed = self.seq
 
         else:  # using embedding layer
             with tf.name_scope('embed'):
-                embed_matrix = tf.get_variable('embed_matrix',
-                                               shape=[self.vocab_size, self.embedding_size],
-                                               initializer=tf.random_uniform_initializer())
+                if not config.PRETRAIN_EMBD_TAG:
+                    embed_matrix = tf.get_variable('embed_matrix',
+                                                   shape=[self.vocab_size, self.embedding_size],
+                                                   initializer=tf.random_uniform_initializer())
+
+                else:
+                    embed_matrix = tf.Variable(self.pretrain_embd,
+                                               trainable=config.PRETRAIN_EMBD_TRAINABLE,name='embed_matrix')
+                    '''
+                    #make sure the pretrain embd is load correctly
+                    with tf.Session() as sess:
+                        sess.run(tf.initialize_all_variables())
+                        print(sess.run(embed_matrix))
+                    '''
                 embed = tf.nn.embedding_lookup(embed_matrix, self.seq, name='embedding')
 
         self.create_actual_model(embed)
@@ -65,45 +70,66 @@ class BaseModel(object):
 
         self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
+    def train_one_epoch(self,sess,saver,init,init_label,writer,epoch,iteration):
+        start_time = time.time()
+        sess.run([init,init_label])
+        total_loss=0
+        n_batches = 0
+        checkpoint_name = config.CPT_PATH + '/'
+        try:
+            while True:
+                batch_loss, _ = sess.run([self.loss, self.opt])
+                #if (iteration + 1) % self.skip_step == 0:
+                    #print('Iter {}. \n    Loss {}'.format(iteration, batch_loss))
+                iteration += 1
+                total_loss +=batch_loss
+                n_batches +=1
 
+        except tf.errors.OutOfRangeError:
+            pass
 
+        saver.save(sess, checkpoint_name, iteration)
+        print('Average loss at epoch {0}: {1}'.format(epoch, total_loss / n_batches))
+        print('Took: {0} seconds'.format(time.time() - start_time))
+        return iteration
 
+    def train_2(self,n_epochs):
+        writer = tf.summary.FileWriter('../graphs/gist', tf.get_default_graph())
+
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
+            saver = tf.train.Saver()
+            ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH+ '/checkpoint'))
+            if ckpt and ckpt.model_checkpoint_path:
+                saver.restore(sess, ckpt.model_checkpoint_path)
+
+            iteration = self.gstep.eval()
+            for epoch in range(n_epochs):
+                iteration = self.train_one_epoch(sess, saver, self.train_init,self.train_init_label, writer, epoch, iteration)
+
+        writer.close()
 
     def train(self):
         saver = tf.train.Saver()
         start = time.time()
         min_loss = None
+
         with tf.Session() as sess:
             writer = tf.summary.FileWriter('../graphs/gist', sess.graph)
             sess.run(tf.global_variables_initializer())
+            sess.run(self.train_init)
+            sess.run(self.train_init_label)
 
             ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH+ '/checkpoint'))
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
 
             iteration = self.gstep.eval()
-            #stream = read_data(self.path, self.vocab, self.num_steps, overlap=self.num_steps // 2)
-
-            stream = utils.read_data_ram(self.train_index_words)
-            stream_label = utils.read_label(config.DATA_PATH+config.TRAIN_LABEL_NAME)
-            data= utils.read_batch(stream, self.batch_size)
-            labels = utils.read_batch(stream_label,self.batch_size)
 
             while True:
-                batch = next(data)
-                label = next(labels)
-                one_hoted_label = []
-                for ite in label:
-                    single_line = [0]*self.num_classes
-                    single_line[ite]=1
-                    one_hoted_label.append(single_line)
-
-
-                # for batch in read_batch(read_data(DATA_PATH, vocab)):
-                batch_loss, _ = sess.run([self.loss, self.opt], {self.label:one_hoted_label,self.seq: batch})
+                batch_loss, _ = sess.run([self.loss, self.opt])
                 if (iteration + 1) % self.skip_step == 0:
                     print('Iter {}. \n    Loss {}. Time {}'.format(iteration, batch_loss, time.time() - start))
-                    #self.online_infer(sess)
                     start = time.time()
                     checkpoint_name = config.CPT_PATH+'/'
                     if min_loss is None:
@@ -158,20 +184,3 @@ class BaseModel(object):
 
 
 
-
-
-    def online_infer(self, sess):
-        """ Generate sequence one character at a time, based on the previous character
-        """
-        for seed in ['Hillary', 'I', 'R', 'T', '@', 'N', 'M', '.', 'G', 'A', 'W']:
-            sentence = seed
-            state = None
-            for _ in range(self.len_generated):
-                batch = [utils.vocab_encode(sentence[-1], self.vocab)]
-                feed = {self.seq: batch}
-                if state is not None:  # for the first decoder step, the state is None
-                    for i in range(len(state)):
-                        feed.update({self.in_state[i]: state[i]})
-                index, state = sess.run([self.sample, self.out_state], feed)
-                sentence += utils.vocab_decode(index, self.vocab)
-            print('\t' + sentence)
