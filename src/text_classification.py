@@ -40,15 +40,19 @@ def main():
 
     elif args.mode == 'inference':
         if os.path.isdir(config.PROCESSED_PATH):
-            local_dest = config.DATA_PATH + config.INFERENCE_DATA_NAME_PROCESSED
-            words, vocab_size, actual_text = word2vec_utils.read_data(local_dest)
-            vocab, _ = word2vec_utils.build_vocab(words, vocab_size, '../visualization')
-            index_words = word2vec_utils.convert_words_to_index(actual_text, vocab, config.NUM_STEPS)
-            lm.inference_index_words = index_words
-            lm.vocab_size = vocab_size
+            local_dest = config.PROCESSED_PATH + config.INFERENCE_DATA_NAME_PROCESSED
+            local_dest_label=None
+            if config.INFERENCE_LABEL_NAME !=None:
+                local_dest_label = config.PROCESSED_PATH + config.INFERENCE_LABEL_NAME
 
-            lm.create_model()
+            if config.PRETRAIN_EMBD_TAG:  # use start pretrain embd or not
+                embd_dest = config.PRETRAIN_EMBD_PATH
+                data.get_pretrain_embedding(lm,embd_dest)
+
+            data.get_data(lm, local_dest, local_dest_label)
+            lm.create_model(config.ONE_HOT_TAG)
             lm.inference()
+
 
 if __name__ == '__main__':
     main()
