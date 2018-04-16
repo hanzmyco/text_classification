@@ -159,7 +159,7 @@ class BaseModel(object):
             output_file = open(config.PROCESSED_PATH+config.INFERENCE_RESULT_NAME,'a+')
 
             while True:
-                batch_loss, _, predicted = sess.run([self.loss, self.opt,self.logits])
+                predicted = sess.run([self.logits])
                 output_file.write(str(predicted))
                 output_file.write('\n')
             output_file.close()
