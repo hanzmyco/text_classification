@@ -7,15 +7,15 @@ TRAIN_LABEL_NAME= 'labels.txt'
 
 #INFERENCE_DATA_NAME ='train.txt'
 INFERENCE_DATA_NAME_PROCESSED ='test.txt.ids'
-#INFERENCE_LABEL_NAME='labels.test.txt'
-INFERENCE_RESULT_NAME='labels_result_test1.txt'
+INFERENCE_LABEL_NAME='labels.test.txt'
+INFERENCE_RESULT_NAME='labels_result_test.txt'
 
 
 
 PROCESSED_PATH = '../data/Processed/'
 
-MODEL_NAME='CNN'
-#MODEL_NAME='GRU'
+#MODEL_NAME='CNN'
+MODEL_NAME='GRU'
 
 CPT_PATH = '../checkpoints/'+MODEL_NAME
 
