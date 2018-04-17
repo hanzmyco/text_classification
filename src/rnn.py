@@ -9,7 +9,7 @@ import config
 class RNN(models.BaseModel):
     def __init__(self,model):
         self.base_init(model)
-        self.hidden_sizes = [128, 256]
+        self.hidden_sizes = config.HIDDEN_SIZE
 
     def create_actual_model(self, embd):
         with tf.name_scope("rnn_cell"):
