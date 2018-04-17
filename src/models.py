@@ -37,7 +37,7 @@ class BaseModel(object):
     def get_logits(self):
         pass
 
-    def create_model(self,one_hot=False):
+    def create_model(self,one_hot=False,training=True):
 
         if one_hot:  # not using embedding layer
             embed = self.seq
@@ -64,11 +64,12 @@ class BaseModel(object):
 
         self.get_logits()
 
-        loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
-                                                       labels=self.label)
-        self.loss = tf.reduce_sum(loss)
+        if training:
+            loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
+                                                           labels=self.label)
+            self.loss = tf.reduce_sum(loss)
 
-        self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
+            self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
     def train_one_epoch(self,sess,saver,init,init_label,writer,epoch,iteration):
         start_time = time.time()
@@ -153,16 +154,21 @@ class BaseModel(object):
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             sess.run(self.init)
-            sess.run(self.init_label)
+
+            #sess.run(self.init_label)
 
             self._check_restore_parameters(sess, saver)
             output_file = open(config.PROCESSED_PATH+config.INFERENCE_RESULT_NAME,'a+')
 
-            while True:
-                predicted = sess.run([self.logits])
-                output_file.write(str(predicted))
-                output_file.write('\n')
-            output_file.close()
+            try:
+                while True:
+                    predicted = sess.run([self.output])
+                    output_file.write(str(predicted))
+                    output_file.write('\n')
+                output_file.close()
+
+            except tf.errors.OutOfRangeError:
+                pass
 
 
 

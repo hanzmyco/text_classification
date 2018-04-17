@@ -35,14 +35,14 @@ def main():
                 data.get_pretrain_embedding(lm,embd_dest)
 
             data.get_data(lm,local_dest,local_dest_label)
-            lm.create_model(config.ONE_HOT_TAG)
+            lm.create_model(config.ONE_HOT_TAG,training=True)
             lm.train_2(config.EPOCH_NUM)
 
     elif args.mode == 'inference':
         if os.path.isdir(config.PROCESSED_PATH):
             local_dest = config.PROCESSED_PATH + config.INFERENCE_DATA_NAME_PROCESSED
             local_dest_label=None
-            if config.INFERENCE_LABEL_NAME !=None:
+            if hasattr(config,'INFERENCE_LABEL_NAME'):
                 local_dest_label = config.PROCESSED_PATH + config.INFERENCE_LABEL_NAME
 
             if config.PRETRAIN_EMBD_TAG:  # use start pretrain embd or not
@@ -50,7 +50,7 @@ def main():
                 data.get_pretrain_embedding(lm,embd_dest)
 
             data.get_data(lm, local_dest, local_dest_label)
-            lm.create_model(config.ONE_HOT_TAG)
+            lm.create_model(config.ONE_HOT_TAG,training=False)
             lm.inference()
 
 

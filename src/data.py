@@ -20,14 +20,18 @@ def get_data(lm,local_dest,local_dest_label=None):
     batched_dataset = dataset.batch(config.BATCH_SIZE)
     iterator = batched_dataset.make_initializable_iterator()
     lm.seq= iterator.get_next()
-    lm.init = iterator.make_initializer(batched_dataset)
+    init = iterator.make_initializer(batched_dataset)
+    #lm.init = iterator.make_initializer(batched_dataset)
+    lm.init=[init]
 
     if local_dest_label:
         labelset=tf.data.TextLineDataset(local_dest_label).map(_parse_label_function)
         batched_dataset_label = labelset.batch(config.BATCH_SIZE)
         iterator_label = batched_dataset_label.make_initializable_iterator()
         lm.label = iterator_label.get_next()
-        lm.init_label = iterator_label.make_initializer(batched_dataset_label)
+        #lm.init_label = iterator_label.make_initializer(batched_dataset_label)
+        init_label = iterator_label.make_initializer(batched_dataset_label)
+        lm.init.add(init_label)
 
 
 
