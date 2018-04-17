@@ -37,7 +37,7 @@ class BaseModel(object):
     def get_logits(self):
         pass
 
-    def create_model(self,one_hot=False):
+    def create_model(self,one_hot=False,training=True):
 
         if one_hot:  # not using embedding layer
             embed = self.seq
@@ -64,11 +64,12 @@ class BaseModel(object):
 
         self.get_logits()
 
-        loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
-                                                       labels=self.label)
-        self.loss = tf.reduce_sum(loss)
+        if training:
+            loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
+                                                           labels=self.label)
+            self.loss = tf.reduce_sum(loss)
 
-        self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
+            self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
     def train_one_epoch(self,sess,saver,init,init_label,writer,epoch,iteration):
         start_time = time.time()
@@ -105,7 +106,7 @@ class BaseModel(object):
 
             iteration = self.gstep.eval()
             for epoch in range(n_epochs):
-                iteration = self.train_one_epoch(sess, saver, self.train_init,self.train_init_label, writer, epoch, iteration)
+                iteration = self.train_one_epoch(sess, saver, self.init,self.init_label, writer, epoch, iteration)
 
         writer.close()
 
@@ -117,8 +118,8 @@ class BaseModel(object):
         with tf.Session() as sess:
             writer = tf.summary.FileWriter('../graphs/gist', sess.graph)
             sess.run(tf.global_variables_initializer())
-            sess.run(self.train_init)
-            sess.run(self.train_init_label)
+            sess.run(self.init)
+            sess.run(self.init_label)
 
             ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH+ '/checkpoint'))
             if ckpt and ckpt.model_checkpoint_path:
@@ -150,37 +151,24 @@ class BaseModel(object):
 
     def inference(self):
         saver = tf.train.Saver()
-        start = time.time()
-        min_loss = None
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
+            sess.run(self.init)
+
+            #sess.run(self.init_label)
+
             self._check_restore_parameters(sess, saver)
+            output_file = open(config.PROCESSED_PATH+config.INFERENCE_RESULT_NAME,'a+')
 
-            # stream = read_data(self.path, self.vocab, self.num_steps, overlap=self.num_steps // 2)
+            try:
+                while True:
+                    predicted = sess.run([self.output])
+                    output_file.write(str(predicted))
+                    output_file.write('\n')
+                output_file.close()
 
-            stream = utils.read_data_ram(self.inference_index_words)
-            stream_label = utils.read_label(config.DATA_PATH+config.INFERENCE_LABEL_NAME)
-            data = utils.read_batch(stream, self.batch_size)
-            labels = utils.read_batch(stream_label, self.batch_size)
-            output_file = open(config.INFERENCE_RESULT_PATH,'a+')
-
-            while True:
-
-                batch = next(data)
-                if len(batch) ==0:
-                    break
-                label = next(labels)
-                one_hoted_label = []
-                for ite in label:
-                    single_line = [0] * self.num_classes
-                    single_line[ite] = 1
-                    one_hoted_label.append(single_line)
-
-                # for batch in read_batch(read_data(DATA_PATH, vocab)):
-                batch_loss, _,predicted = sess.run([self.loss, self.opt,self.label], {self.label: one_hoted_label, self.seq: batch})
-                output_file.write(str(predicted))
-                output_file.write('\n')
-            output_file.close()
+            except tf.errors.OutOfRangeError:
+                pass
 
 
 

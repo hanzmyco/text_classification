@@ -4,10 +4,11 @@ DATA_PATH = '../data/kaggle/'
 TRAIN_DATA_NAME= 'train.txt'
 TRAIN_DATA_NAME_PROCESSED= 'train.txt.ids'
 TRAIN_LABEL_NAME= 'labels.txt'
-INFERENCE_DATA_NAME ='train.txt'
-INFERENCE_DATA_NAME_PROCESSED ='train.txt.ids'
-INFERENCE_LABEL_NAME='labels.txt'
-INFERENCE_RESULT_NAME='labels_result_test.txt'
+
+#INFERENCE_DATA_NAME ='train.txt'
+INFERENCE_DATA_NAME_PROCESSED ='test.txt.ids'
+#INFERENCE_LABEL_NAME='labels.test.txt'
+INFERENCE_RESULT_NAME='labels_result_test1.txt'
 
 
 
