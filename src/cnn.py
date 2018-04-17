@@ -11,9 +11,9 @@ import config
 class CNN(models.BaseModel):
     def __init__(self,model):
         self.base_init(model)
-        self.kernel_sizes=[2,3,4]
-        self.num_filters=2
-        self.dropout_keep_prob = 1.0
+        self.kernel_sizes=config.KERNEL_SIZE
+        self.num_filters=config.NUM_FILTERS
+        self.dropout_keep_prob = config.DROPOUT_KEEP_PROB
 
 
     def create_actual_model(self, embd):
