@@ -185,9 +185,9 @@ class BaseModel(object):
                         probability, classes = sess.run(
                             [tf.nn.softmax(self.logits, name='softmax_tensor'), tf.argmax(input=self.logits, axis=1)])
 
-                    print(probability)
+                    #print(probability)
                     for ite in classes:
-                        output_file.write(str(ite))
+                        output_file.write(str(ite)+'\n')
 
             except tf.errors.OutOfRangeError:
                 output_file.close()
