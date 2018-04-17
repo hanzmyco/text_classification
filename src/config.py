@@ -14,8 +14,8 @@ INFERENCE_RESULT_NAME='labels_result_test1.txt'
 
 PROCESSED_PATH = '../data/Processed/'
 
-#MODEL_NAME='CNN'
-MODEL_NAME='GRU'
+MODEL_NAME='CNN'
+#MODEL_NAME='GRU'
 
 CPT_PATH = '../checkpoints/'+MODEL_NAME
 

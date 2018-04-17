@@ -71,9 +71,9 @@ class BaseModel(object):
 
             self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
-    def train_one_epoch(self,sess,saver,init,init_label,writer,epoch,iteration):
+    def train_one_epoch(self,sess,saver,init,writer,epoch,iteration):
         start_time = time.time()
-        sess.run([init,init_label])
+        sess.run(init)
         total_loss=0
         n_batches = 0
         checkpoint_name = config.CPT_PATH + '/'
@@ -106,7 +106,7 @@ class BaseModel(object):
 
             iteration = self.gstep.eval()
             for epoch in range(n_epochs):
-                iteration = self.train_one_epoch(sess, saver, self.init,self.init_label, writer, epoch, iteration)
+                iteration = self.train_one_epoch(sess, saver, self.init, writer, epoch, iteration)
 
         writer.close()
 
@@ -162,12 +162,15 @@ class BaseModel(object):
 
             try:
                 while True:
-                    predicted = sess.run([self.output])
+                    predicted,classes = sess.run([tf.nn.softmax(self.logits,name='softmax_tensor'),tf.argmax(input=self.logits,axis=1)])
+                    output_file.write(str(classes))
+                    output_file.write('\n')
                     output_file.write(str(predicted))
                     output_file.write('\n')
-                output_file.close()
+
 
             except tf.errors.OutOfRangeError:
+                output_file.close()
                 pass
 
 

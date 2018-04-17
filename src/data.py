@@ -31,7 +31,7 @@ def get_data(lm,local_dest,local_dest_label=None):
         lm.label = iterator_label.get_next()
         #lm.init_label = iterator_label.make_initializer(batched_dataset_label)
         init_label = iterator_label.make_initializer(batched_dataset_label)
-        lm.init.add(init_label)
+        lm.init.append(init_label)
 
 
 
