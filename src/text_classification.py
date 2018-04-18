@@ -2,7 +2,7 @@ import argparse
 import utils
 import config
 import os
-from rnn import RNN
+from rnn import GRU,LSTM
 from cnn import CNN
 import word2vec_utils
 import data
@@ -19,7 +19,9 @@ def main():
     args = parser.parse_args()
 
     if config.MODEL_NAME=='GRU':
-        lm = RNN(config.MODEL_NAME)
+        lm = GRU(config.MODEL_NAME)
+    elif config.MODEL_NAME =='LSTM':
+        lm = LSTM(config.MODEL_NAME)
     elif config.MODEL_NAME =='CNN':
         lm = CNN(config.MODEL_NAME)
     lm.vocab_size = config.VOCAB_SIZE
