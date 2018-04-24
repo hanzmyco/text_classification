@@ -17,6 +17,12 @@ class RNN(models.BaseModel):
     def get_logits(self):
         self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1], self.num_classes, None)
 
+    def self_attention(self,attention_tag = False):
+        if attention_tag:
+            return
+        else:
+            pass
+
 class GRU(RNN):
     def create_actual_model(self, embd):
         with tf.name_scope("rnn_cell"):
