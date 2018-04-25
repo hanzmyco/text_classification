@@ -14,11 +14,13 @@ class RNN(models.BaseModel):
     def create_actual_model(self, embd):
         pass
 
+    def get_hidden_states(self):
+
     def get_logits(self):
         if config.MODEL_NAME !='LSTM':
             self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1], self.num_classes, None)
         else:
-            self.logits = tf.layers.dense(self.out_state[0][len(self.hidden_sizes) - 1], self.num_classes, None)
+            self.logits = tf.layers.dense(self.out_state[1][len(self.hidden_sizes) - 1], self.num_classes, None)
 
     def self_attention(self,attention_tag = config.SELF_ATTENTION_TAG):
         if attention_tag:
