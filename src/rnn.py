@@ -15,6 +15,7 @@ class RNN(models.BaseModel):
         pass
 
     def get_hidden_states(self):
+        pass
 
     def get_logits(self):
         if config.MODEL_NAME !='LSTM':
