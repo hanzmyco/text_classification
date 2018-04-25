@@ -99,7 +99,7 @@ class BaseModel(object):
         print('Took: {0} seconds'.format(time.time() - start_time))
         return iteration
 
-    def train_2(self,n_epochs):
+    def train(self,n_epochs):
         writer = tf.summary.FileWriter('../graphs/gist', tf.get_default_graph())
 
         with tf.Session() as sess:
@@ -122,7 +122,7 @@ class BaseModel(object):
         writer.close()
 
     # deprecated
-    def train(self):
+    def train_old(self):
         saver = tf.train.Saver()
         start = time.time()
         min_loss = None
