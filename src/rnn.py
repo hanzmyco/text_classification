@@ -50,47 +50,13 @@ class LSTM(RNN):
             cells = tf.nn.rnn_cell.MultiRNNCell(layers,state_is_tuple=True)
             batch = tf.shape(embd)[0]
             zero_tuples = cells.zero_state(batch, dtype=tf.float32)
-            #self.in_state = []
 
-            #for state_tuple in zero_tuples:
-                #unstacked_state_tuple = tf.unstack(state_tuple,axis =0)
-                #self.in_state.append(tf.nn.rnn_cell.LSTMState(unstacked_state_tuple[1]))
+            # zero state are tuples, need to be handled specifically
             self.in_state = tuple(
                     [tf.nn.rnn_cell.LSTMStateTuple(tf.unstack(state_tuple,axis =0)[0], tf.unstack(state_tuple,axis =0)[1]) for state_tuple in zero_tuples])
 
-            #    self.in_state.append(tf.nn.rnn_cell.LSTMStateTuple(unstacked_state_tuple[0],unstacked_state_tuple[1]))
-            #self.in_state=tuple(self.in_state)
-
-
-
-            #self.in_state = tuple([tf.placeholder_with_default(tf.unstack(state,axis=0)[0], [None, tf.unstack(state,axis=0)[0].shape[1]])
-             #                      for state in zero_states])
-
-
-            # this line to calculate the real length of seq
-            # all seq are padded to be of the same length, which is num_steps
-
             length = tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1)
 
             self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, length, self.in_state)
 
 
-    def create_actual_model2(self, embd):
-        with tf.name_scope("rnn_cell"):
-            layers = [tf.nn.rnn_cell.LSTMCell(size,state_is_tuple=True) for size in self.hidden_sizes]
-            cells = tf.nn.rnn_cell.MultiRNNCell(layers,state_is_tuple=True)
-            batch = tf.shape(embd)[0]
-            zero_states = cells.zero_state(batch, dtype=tf.float32)
-
-            #self.in_state = tuple([tf.placeholder_with_default(state, [None, state.shape[1]])
-            #                       for state in zero_states])
-
-            self.in_state = tuple(([tf.placeholder_with_default(state, ([None, state.c.shape[1]],[None, state.h.shape[1]]),([None, state.c.shape[1]],[None, state.h.shape[1]]))
-                                   for state in zero_states]))
-
-            # this line to calculate the real length of seq
-            # all seq are padded to be of the same length, which is num_steps
-
-            length = tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1)
-
-            self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, length, self.in_state)
