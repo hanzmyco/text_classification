@@ -10,22 +10,37 @@ class RNN(models.BaseModel):
     def __init__(self,model):
         self.base_init(model)
         self.hidden_sizes = config.HIDDEN_SIZE
+        self.attention_size = config.ATTENTION_SIZE
+        self.num_topics = config.NUM_TOPICS
 
     def create_actual_model(self, embd):
         pass
 
     def get_hidden_states(self):
+
         pass
 
     def get_logits(self):
-        if config.MODEL_NAME !='LSTM':
-            self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1], self.num_classes, None)
+        if not config.SELF_ATTENTION_TAG:
+            if config.MODEL_NAME !='LSTM':
+                self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1], self.num_classes, None)
+            else:
+                self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1][1], self.num_classes, None)
         else:
-            self.logits = tf.layers.dense(self.out_state[1][len(self.hidden_sizes) - 1], self.num_classes, None)
+            self.self_attention()
+            self.logits = tf.layers.dense(self.attention_logits, self.num_classes, None)
+            print('test attention')
 
     def self_attention(self,attention_tag = config.SELF_ATTENTION_TAG):
         if attention_tag:
-            return
+            W_s1 = tf.get_variable('attention_matrix',
+                                           shape=[config.NUM_STEPS, self.hidden_sizes[-1]],
+                                           initializer=tf.random_uniform_initializer())
+            w_s2 = tf.get_variable('attention_vector',
+                                           shape=[self.num_topics, self.attention_size],
+                                           initializer=tf.random_uniform_initializer())
+            A=tf.nn.softmax(tf.matmul(w_s2,tf.tanh(tf.matmul(W_s1,self.output,False,True,name='alignment'))))
+            self.attention_logits = tf.matmul(A,self.output)
         else:
             pass
 
@@ -46,6 +61,8 @@ class GRU(RNN):
 
             self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, length, self.in_state)
 
+
+
 class LSTM(RNN):
     def create_actual_model(self, embd):
         with tf.name_scope("rnn_cell"):
@@ -61,5 +78,6 @@ class LSTM(RNN):
             length = tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1)
 
             self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, length, self.in_state)
+
 
 
