@@ -34,13 +34,27 @@ class RNN(models.BaseModel):
     def self_attention(self,attention_tag = config.SELF_ATTENTION_TAG):
         if attention_tag:
             W_s1 = tf.get_variable('attention_matrix',
-                                           shape=[config.NUM_STEPS, self.hidden_sizes[-1]],
+                                           shape=[1,config.ATTENTION_SIZE, self.hidden_sizes[-1]],
                                            initializer=tf.random_uniform_initializer())
             w_s2 = tf.get_variable('attention_vector',
-                                           shape=[self.num_topics, self.attention_size],
+                                           shape=[1,self.num_topics, self.attention_size],
                                            initializer=tf.random_uniform_initializer())
-            A=tf.nn.softmax(tf.matmul(w_s2,tf.tanh(tf.matmul(W_s1,self.output,False,True,name='alignment'))))
-            self.attention_logits = tf.matmul(A,self.output)
+            transposed_output = tf.transpose(self.output,perm=[0,2,1])
+            #n=tf.shape(transposed_output)[2]
+            #u=tf.shape(transposed_output)[0]
+            #k=tf.shape(transposed_output)[1]
+            #reshaped_output = tf.reshape(transposed_output,shape=[u,k*n])
+
+            a1=tf.matmul(W_s1,transposed_output,name='alignment')
+            b1=tf.tanh(a1)
+
+            a2=tf.matmul(w_s2,b1)
+            a3=tf.nn.softmax(a2,axis=1)
+            #A=tf.nn.softmax(tf.matmul(w_s2,tf.tanh(tf.matmul(W_s1,self.output,False,True,name='alignment'))))
+            test=tf.matmul(transposed_output,tf.transpose(a3,perm=[0,2,1]))
+            #test2=tf.matmul(tf.transpose(a3,perm=[0,2,1]),transposed_output)
+            #tf.transpose(test,perm=[0,2,1]).reshape([])
+            self.attention_logits = tf.matmul(a3,self.output)
         else:
             pass
 
