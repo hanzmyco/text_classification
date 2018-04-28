@@ -40,21 +40,25 @@ class RNN(models.BaseModel):
                                            shape=[1,self.num_topics, self.attention_size],
                                            initializer=tf.random_uniform_initializer())
             transposed_output = tf.transpose(self.output,perm=[0,2,1])
-            #n=tf.shape(transposed_output)[2]
-            #u=tf.shape(transposed_output)[0]
-            #k=tf.shape(transposed_output)[1]
-            #reshaped_output = tf.reshape(transposed_output,shape=[u,k*n])
 
-            a1=tf.matmul(W_s1,transposed_output,name='alignment')
-            b1=tf.tanh(a1)
 
-            a2=tf.matmul(w_s2,b1)
-            a3=tf.nn.softmax(a2,axis=1)
+            a1=tf.tensordot(W_s1,transposed_output,name='alignment',axes=[[2],[1]])
+            b=tf.transpose(tf.unstack(a1,axis=0)[0],perm=[1,0,2])
+            b1=tf.tanh(b)
+
+            a2=tf.unstack(tf.tensordot(w_s2,b1,axes=[[2],[1]]),axis=0)[0]
+            a3=tf.nn.softmax(a2,axis=2)
             #A=tf.nn.softmax(tf.matmul(w_s2,tf.tanh(tf.matmul(W_s1,self.output,False,True,name='alignment'))))
-            test=tf.matmul(transposed_output,tf.transpose(a3,perm=[0,2,1]))
-            #test2=tf.matmul(tf.transpose(a3,perm=[0,2,1]),transposed_output)
-            #tf.transpose(test,perm=[0,2,1]).reshape([])
-            self.attention_logits = tf.matmul(a3,self.output)
+
+            #test=tf.multiply(transposed_output,tf.transpose(a3))
+
+            #test=tf.matmul(transposed_output,tf.transpose(a3,perm=[0,2,1]))
+
+            intermediate = tf.tensordot(a3, self.output, axes=[[2], [1]])
+
+
+
+            self.attention_logits = tf.reduce_sum(intermediate,0,keepdims=True)
         else:
             pass
 
