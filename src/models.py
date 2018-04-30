@@ -29,7 +29,22 @@ class BaseModel(object):
         self.loss=0
 
     def __init__(self, model):
-        pass
+        self.model = model
+        self.path = '../data/' + model + '.txt'
+        self.temp = tf.constant(1.5)
+        self.batch_size = config.BATCH_SIZE
+        self.lr = config.LR
+        self.skip_step = 1
+        self.len_generated = 200
+        self.gstep = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
+        self.num_classes = config.NUM_CLASSES
+        self.out_state = None
+        self.in_state = None
+        self.sample = None
+        self.num_steps = config.NUM_STEPS  # for RNN unrolled, actually use it for cut down
+        self.embedding_size = config.EMBEDDING_SIZE
+        self.vocab_size=config.VOCAB_SIZE
+        self.loss=0
 
 
     def create_actual_model(self, embd):

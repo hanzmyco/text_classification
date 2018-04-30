@@ -10,7 +10,7 @@ import config
 
 class CNN(models.BaseModel):
     def __init__(self,model):
-        self.base_init(model)
+        models.BaseModel.__init__(self,model)
         self.kernel_sizes=config.KERNEL_SIZE
         self.num_filters=config.NUM_FILTERS
         self.dropout_keep_prob = config.DROPOUT_KEEP_PROB

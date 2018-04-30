@@ -2,11 +2,12 @@ import argparse
 import utils
 import config
 import os
-from rnn import GRU,LSTM
+from LSTM import LSTM
 from cnn import CNN
+from GRU import GRU
 import word2vec_utils
 import data
-
+import run_process
 
 def main():
     # set up check points location
@@ -39,7 +40,7 @@ def main():
 
             data.get_data(lm,local_dest,local_dest_label)
             lm.create_model(config.ONE_HOT_TAG,training=True)
-            lm.train(config.EPOCH_NUM)
+            run_process.train(lm,config.EPOCH_NUM)
 
     elif args.mode == 'inference':
         if os.path.isdir(config.PROCESSED_PATH):
@@ -54,7 +55,7 @@ def main():
 
             data.get_data(lm, local_dest, local_dest_label)
             lm.create_model(config.ONE_HOT_TAG,training=False)
-            lm.inference()
+            run_process.inference(lm)
 
 
 if __name__ == '__main__':

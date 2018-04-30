@@ -19,6 +19,8 @@ import os
 import random
 import re
 import numpy as np
+import sys
+sys.path.append('../src/')
 import config
 
 
