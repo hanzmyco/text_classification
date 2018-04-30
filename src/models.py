@@ -70,7 +70,9 @@ class BaseModel(object):
         if training:
             loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
                                                            labels=self.label)
-            self.loss += tf.reduce_sum(loss)
+            self.loss += loss
+
+            self.loss = tf.reduce_sum(self.loss)
 
             params = tf.trainable_variables()
 
