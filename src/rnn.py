@@ -31,7 +31,7 @@ class RNN(models.BaseModel):
             self.logits = tf.layers.dense(self.attention_logits, self.num_classes, None)
             print('test attention')
 
-    def self_attention(self,attention_tag = config.SELF_ATTENTION_TAG,r=30):
+    def self_attention(self,attention_tag = config.SELF_ATTENTION_TAG):
 
         if attention_tag:
             W_s1 = tf.get_variable('attention_matrix',
@@ -56,13 +56,17 @@ class RNN(models.BaseModel):
             self.attention_logits = tf.reduce_sum(M,1)
 
             A_T = tf.transpose(A, perm=[0, 2, 1])
-            tile_eye = tf.tile(tf.eye(r), [config.BATCH_SIZE , 1])
-            tile_eye = tf.reshape(tile_eye, [-1, r, r])
+            tile_eye = tf.tile(tf.eye(self.num_topics), [config.BATCH_SIZE , 1])
+            tile_eye = tf.reshape(tile_eye, [-1, self.num_topics, self.num_topics])
             AA_T = tf.matmul(A, A_T) - tile_eye
             self.loss += config.ATTENTION_COEF*tf.square(tf.norm(AA_T, axis=[-2, -1], ord='fro'))
 
         else:
             pass
+
+    def Hierachical_Attention(self):
+
+        pass
 
 class GRU(RNN):
     def create_actual_model(self, embd):
