@@ -56,7 +56,7 @@ class RNN(models.BaseModel):
             self.attention_logits = tf.reduce_sum(M,1)
 
             A_T = tf.transpose(A, perm=[0, 2, 1])
-            tile_eye = tf.tile(tf.eye(self.num_topics), [config.BATCH_SIZE , 1])
+            tile_eye = tf.tile(tf.eye(self.num_topics), [tf.shape(A)[0], 1])
             tile_eye = tf.reshape(tile_eye, [-1, self.num_topics, self.num_topics])
             AA_T = tf.matmul(A, A_T) - tile_eye
             self.loss += config.ATTENTION_COEF*tf.square(tf.norm(AA_T, axis=[-2, -1], ord='fro'))
