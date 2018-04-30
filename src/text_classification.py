@@ -2,7 +2,7 @@ import argparse
 import utils
 import config
 import os
-from rnn import RNN
+from rnn import GRU,LSTM
 from cnn import CNN
 import word2vec_utils
 import data
@@ -19,7 +19,10 @@ def main():
     args = parser.parse_args()
 
     if config.MODEL_NAME=='GRU':
-        lm = RNN(config.MODEL_NAME)
+        lm = GRU(config.MODEL_NAME)
+    elif config.MODEL_NAME =='LSTM':
+        lm = LSTM(config.MODEL_NAME)
+        print('here')
     elif config.MODEL_NAME =='CNN':
         lm = CNN(config.MODEL_NAME)
     lm.vocab_size = config.VOCAB_SIZE
@@ -36,7 +39,7 @@ def main():
 
             data.get_data(lm,local_dest,local_dest_label)
             lm.create_model(config.ONE_HOT_TAG,training=True)
-            lm.train_2(config.EPOCH_NUM)
+            lm.train(config.EPOCH_NUM)
 
     elif args.mode == 'inference':
         if os.path.isdir(config.PROCESSED_PATH):
