@@ -31,34 +31,36 @@ class RNN(models.BaseModel):
             self.logits = tf.layers.dense(self.attention_logits, self.num_classes, None)
             print('test attention')
 
-    def self_attention(self,attention_tag = config.SELF_ATTENTION_TAG):
+    def self_attention(self,attention_tag = config.SELF_ATTENTION_TAG,r=30):
+
         if attention_tag:
             W_s1 = tf.get_variable('attention_matrix',
-                                           shape=[1,config.ATTENTION_SIZE, self.hidden_sizes[-1]],
+                                           shape=[config.ATTENTION_SIZE, self.hidden_sizes[-1]],
                                            initializer=tf.random_uniform_initializer())
             w_s2 = tf.get_variable('attention_vector',
-                                           shape=[1,self.num_topics, self.attention_size],
+                                           shape=[self.num_topics, self.attention_size],
                                            initializer=tf.random_uniform_initializer())
-            transposed_output = tf.transpose(self.output,perm=[0,2,1])
 
+            A = tf.nn.softmax(tf.map_fn(
+                lambda x:tf.matmul(w_s2,x),
+                tf.tanh(
+                    tf.map_fn(
+                        lambda x : tf.matmul(W_s1,tf.transpose(x)),
+                    self.output)
+                )
+            ))
 
-            a1=tf.tensordot(W_s1,transposed_output,name='alignment',axes=[[2],[1]])
-            b=tf.transpose(tf.unstack(a1,axis=0)[0],perm=[1,0,2])
-            b1=tf.tanh(b)
+            M = tf.matmul(A,self.output)
 
-            a2=tf.unstack(tf.tensordot(w_s2,b1,axes=[[2],[1]]),axis=0)[0]
-            a3=tf.nn.softmax(a2,axis=2)
-            #A=tf.nn.softmax(tf.matmul(w_s2,tf.tanh(tf.matmul(W_s1,self.output,False,True,name='alignment'))))
+            # currently support topics with same weight
+            self.attention_logits = tf.reduce_sum(M,1)
 
-            #test=tf.multiply(transposed_output,tf.transpose(a3))
+            A_T = tf.transpose(A, perm=[0, 2, 1])
+            tile_eye = tf.tile(tf.eye(r), [config.BATCH_SIZE , 1])
+            tile_eye = tf.reshape(tile_eye, [-1, r, r])
+            AA_T = tf.matmul(A, A_T) - tile_eye
+            self.loss += config.ATTENTION_COEF*tf.square(tf.norm(AA_T, axis=[-2, -1], ord='fro'))
 
-            #test=tf.matmul(transposed_output,tf.transpose(a3,perm=[0,2,1]))
-
-            intermediate = tf.tensordot(a3, self.output, axes=[[2], [1]])
-
-
-
-            self.attention_logits = tf.reduce_sum(intermediate,0,keepdims=True)
         else:
             pass
 

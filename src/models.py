@@ -26,6 +26,7 @@ class BaseModel(object):
         self.num_steps = config.NUM_STEPS  # for RNN unrolled, actually use it for cut down
         self.embedding_size = config.EMBEDDING_SIZE
         self.vocab_size=config.VOCAB_SIZE
+        self.loss=0
 
     def __init__(self, model):
         pass
@@ -69,9 +70,20 @@ class BaseModel(object):
         if training:
             loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
                                                            labels=self.label)
-            self.loss = tf.reduce_sum(loss)
+            self.loss += tf.reduce_sum(loss)
 
-            self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
+            params = tf.trainable_variables()
+
+            optimizer = tf.train.AdamOptimizer(self.lr)
+
+            grad_and_vars = tf.gradients(self.loss,params)
+
+            clipped_gradients , _= tf.clip_by_global_norm(grad_and_vars,0.5)
+
+            self.opt = optimizer.apply_gradients(zip(clipped_gradients,params),global_step = self.gstep)
+
+
+            #self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
 
 
