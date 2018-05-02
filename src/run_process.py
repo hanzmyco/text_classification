@@ -4,8 +4,6 @@ import sys
 sys.path.append('..')
 import time
 import tensorflow as tf
-import utils
-import word2vec_utils
 import config
 
 
@@ -51,7 +49,7 @@ def train(model, n_epochs):
 
         iteration = model.gstep.eval()
         for epoch in range(n_epochs):
-            iteration = model.train_one_epoch(sess, saver, model.init, writer, epoch, iteration)
+            iteration = train_one_epoch(model,sess, saver, model.init, writer, epoch, iteration)
 
     writer.close()
 

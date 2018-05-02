@@ -5,7 +5,6 @@ import os
 from LSTM import LSTM
 from cnn import CNN
 from GRU import GRU
-import word2vec_utils
 import data
 import run_process
 
@@ -23,7 +22,6 @@ def main():
         lm = GRU(config.MODEL_NAME)
     elif config.MODEL_NAME =='LSTM':
         lm = LSTM(config.MODEL_NAME)
-        print('here')
     elif config.MODEL_NAME =='CNN':
         lm = CNN(config.MODEL_NAME)
     lm.vocab_size = config.VOCAB_SIZE
