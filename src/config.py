@@ -16,6 +16,8 @@ PROCESSED_PATH = '../data/Processed/'
 MODEL_NAME='GRU'
 #MODEL_NAME='LSTM'
 
+MODEL_BI_DIRECTOion = True
+
 CPT_PATH = '../checkpoints/'+MODEL_NAME
 
 VOCAB_SIZE=15217

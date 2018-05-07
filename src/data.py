@@ -9,6 +9,11 @@ def _parse_data_function(line):
     else:
         return tf.cast(parsed_line,tf.int32)
 
+def _test_parse_data_function(line):
+    parsed_line =tf.decode_raw(line,out_type = tf.unit8)
+    return tf.cast(parsed_line,tf.int32)
+
+
 def _parse_label_function(line):
 
     label=tf.decode_csv(line,[[0]])
