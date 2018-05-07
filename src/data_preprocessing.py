@@ -198,6 +198,9 @@ def token2id(data, mode):
         padd_input=_pad_input(ids,config.NUM_STEPS)
         out_file.write(' '.join(str(id_) for id_ in padd_input[:config.NUM_STEPS]) + '\n')
 
+        #out_file.write(' '.join(str(id_) for id_ in ids) + '\n')
+
+
 
 def loadGloVe(filename,vocab_tag=False,embedding=False):
     vocab = []
@@ -301,6 +304,6 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 
 
 if __name__ == '__main__':
-    tokenize_data([config.TRAIN_DATA_NAME],config.DATA_PATH+config.TRAIN_LABEL_NAME,config.PROCESSED_PATH+config.TRAIN_LABEL_NAME)
+    #tokenize_data([config.TRAIN_DATA_NAME],config.DATA_PATH+config.TRAIN_LABEL_NAME,config.PROCESSED_PATH+config.TRAIN_LABEL_NAME)
     process_data([config.TRAIN_DATA_NAME+'.tok'])
 
