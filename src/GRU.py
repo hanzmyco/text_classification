@@ -22,11 +22,11 @@ class GRU(rnn.RNN):
             # this line to calculate the real length of seq
             # all seq are padded to be of the same length, which is num_steps
 
-            length = tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1)
+            length = tf.cast(tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1),tf.int32)
 
 
 
-            if config.MODEL_BI_DIRECTOion:
+            if config.MODEL_BI_DIRECTION:
                 bw_layers = [tf.nn.rnn_cell.GRUCell(size) for size in self.hidden_sizes]
                 bw_cells = tf.nn.rnn_cell.MultiRNNCell(bw_layers)
                 bw_zero_states =bw_cells.zero_state(batch,dtype=tf.float32)
@@ -34,7 +34,7 @@ class GRU(rnn.RNN):
                                    for state in bw_zero_states])
 
                 self.output, self.out_state = tf.nn.bidirectional_dynamic_rnn(cells,bw_cells, embd, length, in_state,bw_in_state)
-
+                print('stop here')
             else:
                 self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, length, in_state)
 
