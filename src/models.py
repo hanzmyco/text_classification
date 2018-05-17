@@ -59,6 +59,8 @@ class BaseModel(object):
 
         self.get_logits()
 
+        self.logits = tf.layers.batch_normalization(self.logits)
+
         _, self.acc_op = tf.metrics.accuracy(labels=tf.argmax(input=self.label, axis=2), predictions=tf.argmax(input=self.logits, axis=1),name = 'my_metrics')
 
         if training:
