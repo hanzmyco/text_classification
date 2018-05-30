@@ -37,7 +37,7 @@ class GRU(rnn.RNN):
                 print('stop here')
                 self.output=tf.concat([self.output[0],self.output[1]],2)
                 #self.out_state = tf.concat([self.out_state[0],self.out_state[1]],2)
-                self.out_state = tuple(tf.concat([self.out_state[0][0],self.out_state[1][0]],2),tf.concat([self.out_state[0][1],self.out_state[1][1]],2))
+                self.out_state = tuple((tf.concat([self.out_state[0][0],self.out_state[1][0]],1),tf.concat([self.out_state[0][1],self.out_state[1][1]],1)))
 
             else:
                 self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, length, in_state)
