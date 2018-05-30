@@ -18,7 +18,7 @@ class LSTM(rnn.RNN):
             in_state = tuple(
                     [tf.nn.rnn_cell.LSTMStateTuple(tf.unstack(state_tuple,axis =0)[0], tf.unstack(state_tuple,axis =0)[1]) for state_tuple in zero_tuples])
 
-            length = tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1)
+            length = tf.cast(tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1),tf.int32)
 
 
             if config.MODEL_BI_DIRECTION:
@@ -32,8 +32,16 @@ class LSTM(rnn.RNN):
                 self.output, self.out_state = tf.nn.bidirectional_dynamic_rnn(cells, bw_cells, embd, length, in_state,
                                                                               bw_in_state)
                 self.output = tf.concat([self.output[0], self.output[1]], 2)
-                self.out_state = tuple((tf.concat([self.out_state[0][0], self.out_state[1][0]], 1),
-                                        tf.concat([self.out_state[0][1], self.out_state[1][1]], 1)))
+
+                out_c_0 = tf.concat([self.out_state[0][0][0],self.out_state[1][0][0]],1)
+                out_h_0 = tf.concat([self.out_state[0][0][1],self.out_state[1][0][1]],1)
+                out_c_1 = tf.concat([self.out_state[0][1][0],self.out_state[1][1][0]],1)
+                out_h_1 = tf.concat([self.out_state[0][1][1], self.out_state[1][1][1]], 1)
+
+                self.out_state=tuple((tf.nn.rnn_cell.LSTMStateTuple(out_c_0,out_h_0),tf.nn.rnn_cell.LSTMStateTuple(out_c_1,out_h_1)))
+
+                #self.out_state = tuple((tf.concat([self.out_state[0][0], self.out_state[1][0]], 1),
+                #                        tf.concat([self.out_state[0][1], self.out_state[1][1]], 1)))
             else:
                 self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, length, in_state)
 
