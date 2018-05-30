@@ -13,8 +13,8 @@ INFERENCE_RESULT_NAME='labels_result_test.txt'
 PROCESSED_PATH = '../data/Processed/'
 
 #MODEL_NAME='CNN'
-MODEL_NAME='GRU'
-#MODEL_NAME='LSTM'
+#MODEL_NAME='GRU'
+MODEL_NAME='LSTM'
 
 MODEL_BI_DIRECTOion = True
 

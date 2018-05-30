@@ -24,8 +24,6 @@ class GRU(rnn.RNN):
 
             length = tf.cast(tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1),tf.int32)
 
-
-
             if config.MODEL_BI_DIRECTION:
                 bw_layers = [tf.nn.rnn_cell.GRUCell(size) for size in self.hidden_sizes]
                 bw_cells = tf.nn.rnn_cell.MultiRNNCell(bw_layers)
@@ -34,13 +32,12 @@ class GRU(rnn.RNN):
                                    for state in bw_zero_states])
 
                 self.output, self.out_state = tf.nn.bidirectional_dynamic_rnn(cells,bw_cells, embd, length, in_state,bw_in_state)
-                print('stop here')
                 self.output=tf.concat([self.output[0],self.output[1]],2)
-                #self.out_state = tf.concat([self.out_state[0],self.out_state[1]],2)
                 self.out_state = tuple((tf.concat([self.out_state[0][0],self.out_state[1][0]],1),tf.concat([self.out_state[0][1],self.out_state[1][1]],1)))
-
+          
             else:
                 self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, length, in_state)
+
 
 
 

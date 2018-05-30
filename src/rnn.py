@@ -16,6 +16,25 @@ class RNN(models.BaseModel):
     def create_actual_model(self, embd):
         pass
 
+    def actul_model_helper(self,embd,cells,batch,length,in_state,bw_layers=None):
+
+        if config.MODEL_BI_DIRECTION:
+            bw_cells = tf.nn.rnn_cell.MultiRNNCell(bw_layers)
+            bw_zero_states = bw_cells.zero_state(batch, dtype=tf.float32)
+            bw_in_state = tuple([tf.placeholder_with_default(state, [None, state.shape[1]])
+                                 for state in bw_zero_states])
+
+            self.output, self.out_state = tf.nn.bidirectional_dynamic_rnn(cells, bw_cells, embd, length, in_state,
+                                                                          bw_in_state)
+            self.output = tf.concat([self.output[0], self.output[1]], 2)
+            self.out_state = tuple((tf.concat([self.out_state[0][0], self.out_state[1][0]], 1),
+                                    tf.concat([self.out_state[0][1], self.out_state[1][1]], 1)))
+
+        else:
+            self.output, self.out_state = tf.nn.dynamic_rnn(cells, embd, length, in_state)
+
+
+
     def get_hidden_states(self):
 
         pass
