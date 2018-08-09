@@ -1,25 +1,25 @@
 
 # parameters for processing the dataset
-DATA_PATH = '../../../data/caption_data/'
+DATA_PATH = '../data/video_info/'
 TRAIN_DATA_NAME= 'train.txt'
 TRAIN_DATA_NAME_PROCESSED= 'train.txt.ids'
-TRAIN_LABEL_NAME= 'toy_classes.txt'
+TRAIN_LABEL_NAME= 'label.txt'
 
 #INFERENCE_DATA_NAME ='train.txt'
 INFERENCE_DATA_NAME_PROCESSED ='train.txt.ids'
 INFERENCE_LABEL_NAME='labels.txt'
 INFERENCE_RESULT_NAME='labels_result_test.txt'
 
-PROCESSED_PATH = '../../../data/caption_data/Processed/'
+PROCESSED_PATH = '../data/video_info/'
 
 MODEL_NAME='CNN'
 #MODEL_NAME='GRU'
 #MODEL_NAME='LSTM'
 
 
-CPT_PATH = '../../../data/caption_data/checkpoints/'+MODEL_NAME
+CPT_PATH = '../model/video_info/checkpoints/'+MODEL_NAME
 
-VOCAB_SIZE=15217
+VOCAB_SIZE=48301
 UNK_ID = 0
 PAD_ID = 1
 START_ID = 2

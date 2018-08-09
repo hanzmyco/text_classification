@@ -138,7 +138,7 @@ def build_vocab(filename, normalize_digits=False):
     out_path = os.path.join(config.PROCESSED_PATH, 'vocab.{}'.format(filename[-7:-4]))
 
     vocab = {}
-    with open(in_path, 'r') as f:
+    with open(in_path, 'r',encoding='utf-8') as f:
         for line in f.readlines():
             tokens = line.split()
             for token in tokens:
@@ -147,7 +147,7 @@ def build_vocab(filename, normalize_digits=False):
                 vocab[token] += 1
 
     sorted_vocab = sorted(vocab, key=vocab.get, reverse=True)
-    with open(out_path, 'w') as f:
+    with open(out_path, 'w',encoding='utf-8') as f:
         f.write('<unk>' + '\n')
         f.write('PAD'+'\n')
         index = 2
@@ -188,8 +188,8 @@ def token2id(data, mode):
     in_path = data + '.' + mode + '.tok'
 
     _, vocab = load_vocab(os.path.join(config.PROCESSED_PATH, vocab_path))
-    in_file = open(os.path.join(config.PROCESSED_PATH, in_path), 'r')
-    out_file = open(os.path.join(config.PROCESSED_PATH, out_path), 'w')
+    in_file = open(os.path.join(config.PROCESSED_PATH, in_path), 'r',encoding='utf-8')
+    out_file = open(os.path.join(config.PROCESSED_PATH, out_path), 'w',encoding='utf-8')
 
     lines = in_file.read().splitlines()
     for line in lines:
