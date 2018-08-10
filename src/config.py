@@ -12,6 +12,8 @@ INFERENCE_RESULT_NAME='labels_result_test.txt'
 
 PROCESSED_PATH = '../data/video_info/'
 
+LOG_PATH='../log/video_info/'
+
 MODEL_NAME='CNN'
 #MODEL_NAME='GRU'
 #MODEL_NAME='LSTM'

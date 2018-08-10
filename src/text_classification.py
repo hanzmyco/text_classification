@@ -7,11 +7,13 @@ from cnn import CNN
 from GRU import GRU
 import data
 import run_process
+import logging
 
 def main():
     # set up check points location
     utils.safe_mkdir('../checkpoints')
     utils.safe_mkdir(config.CPT_PATH)
+    logging.basicConfig(filename=config.LOG_PATH,level=logging.DEBUG)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', choices={'train', 'inference'},
