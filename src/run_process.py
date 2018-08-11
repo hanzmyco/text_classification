@@ -5,7 +5,7 @@ sys.path.append('..')
 import time
 import tensorflow as tf
 import config
-
+import logging
 
 def train_one_epoch(model, sess, saver, init, writer, epoch, iteration):
     start_time = time.time()
@@ -27,6 +27,11 @@ def train_one_epoch(model, sess, saver, init, writer, epoch, iteration):
         pass
 
     saver.save(sess, checkpoint_name, iteration)
+
+    logging.basicConfig(filename=config.LOG_PATH, level=logging.DEBUG)
+
+    logging.info('Average loss and accuracy at epoch {0}: {1},{2}'.format(epoch, total_loss / n_batches,
+                                                                   total_accuracy / n_batches))
     print('Average loss and accuracy at epoch {0}: {1},{2}'.format(epoch, total_loss / n_batches,
                                                                    total_accuracy / n_batches))
     print('Took: {0} seconds'.format(time.time() - start_time))
@@ -89,9 +94,13 @@ def _check_restore_parameters(sess, saver):
     """ Restore the previously trained parameters if there are any. """
     ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH + '/checkpoint'))
     if ckpt and ckpt.model_checkpoint_path:
+        logging.basicConfig(filename=config.LOG_PATH, level=logging.DEBUG)
+        logging.info("Loading parameters for text classifier")
         print("Loading parameters for text classifier")
         saver.restore(sess, ckpt.model_checkpoint_path)
     else:
+        logging.basicConfig(filename=config.LOG_PATH, level=logging.DEBUG)
+        logging.info("Initializing fresh parameters for text classifier")
         print("Initializing fresh parameters for text classifier")
 
 
