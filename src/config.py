@@ -1,25 +1,25 @@
 
 # parameters for processing the dataset
-DATA_PATH = '../data/video_info/'
-TRAIN_DATA_NAME= 'train.txt'
-TRAIN_DATA_NAME_PROCESSED= 'train.txt.ids'
-TRAIN_LABEL_NAME= 'label.txt'
+DATA_PATH = '../data/video_info/10_cross_validation/'
+TRAIN_DATA_NAME= 'train/train.txt'
+TRAIN_DATA_NAME_PROCESSED= 'train/train.txt.ids.0'
+TRAIN_LABEL_NAME= 'train/label.txt.0'
 
 #INFERENCE_DATA_NAME ='train.txt'
-INFERENCE_DATA_NAME_PROCESSED ='train.txt.ids'
+INFERENCE_DATA_NAME_PROCESSED ='test/test.txt.ids.0'
 INFERENCE_LABEL_NAME='labels.txt'
 INFERENCE_RESULT_NAME='labels_result_test.txt'
 
 PROCESSED_PATH = '../data/video_info/'
 
-LOG_PATH='../log/video_info/'
+LOG_PATH='../log/video_info/10_cross_validation_0/'
 
-MODEL_NAME='CNN'
-#MODEL_NAME='GRU'
+#MODEL_NAME='CNN'
+MODEL_NAME='GRU'
 #MODEL_NAME='LSTM'
 
 
-CPT_PATH = '../model/video_info/checkpoints/'+MODEL_NAME
+CPT_PATH = '../model/video_info/checkpoints/'+MODEL_NAME+'/0'
 
 VOCAB_SIZE=48301
 UNK_ID = 0
@@ -59,4 +59,3 @@ ATTENTION_COEF=0.004
 HIERACHICAL_ATTENTION_TAG=False
 
 MODEL_BI_DIRECTION = True
-

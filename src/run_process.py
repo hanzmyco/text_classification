@@ -7,6 +7,8 @@ import tensorflow as tf
 import config
 import logging
 
+logging.basicConfig(filename=config.LOG_PATH, level=logging.DEBUG)
+
 def train_one_epoch(model, sess, saver, init, writer, epoch, iteration):
     start_time = time.time()
     sess.run(init)
@@ -28,7 +30,7 @@ def train_one_epoch(model, sess, saver, init, writer, epoch, iteration):
 
     saver.save(sess, checkpoint_name, iteration)
 
-    logging.basicConfig(filename=config.LOG_PATH, level=logging.DEBUG)
+    #logging.basicConfig(filename=config.LOG_PATH, level=logging.DEBUG)
 
     logging.info('Average loss and accuracy at epoch {0}: {1},{2}'.format(epoch, total_loss / n_batches,
                                                                    total_accuracy / n_batches))
@@ -118,6 +120,10 @@ def inference(model):
 
         _check_restore_parameters(sess, saver)
         output_file = open(config.PROCESSED_PATH + config.INFERENCE_RESULT_NAME, 'a+')
+
+
+        logging.info
+
 
         try:
             while True:
