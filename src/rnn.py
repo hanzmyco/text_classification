@@ -12,6 +12,8 @@ class RNN(models.BaseModel):
         self.hidden_sizes = config.HIDDEN_SIZE
         self.attention_size = config.ATTENTION_SIZE
         self.num_topics = config.NUM_TOPICS
+        self.dropout_keep_prob = config.DROPOUT_KEEP_PROB
+
 
     def create_actual_model(self, embd):
         pass
@@ -23,7 +25,13 @@ class RNN(models.BaseModel):
     def get_logits(self):
         if not config.SELF_ATTENTION_TAG:
             if config.MODEL_NAME !='LSTM':
-                self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1], self.num_classes, None)
+                if config.DROPOUT_KEEP_PROB!=1.0:
+                    with tf.name_scope('dropouts'):
+                        last_state_drop = tf.nn.dropout(self.out_state[len(self.hidden_sizes) - 1],self.dropout_keep_prob)
+                    self.logits = tf.layers.dense(last_state_drop, self.num_classes, None)
+                else:
+                    self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1], self.num_classes, None)
+
             else:
                 self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1][1], self.num_classes, None)
         else:
@@ -63,4 +71,3 @@ class RNN(models.BaseModel):
 
         else:
             pass
-

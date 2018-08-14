@@ -51,7 +51,7 @@ def train(model, n_epochs):
         running_vars_initializer = tf.variables_initializer(var_list=running_vars)
         sess.run(running_vars_initializer)
 
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(max_to_keep=3,save_relative_paths=True)
         _check_restore_parameters(sess, saver)
 
         iteration = model.gstep.eval()
@@ -59,38 +59,6 @@ def train(model, n_epochs):
             iteration = train_one_epoch(model,sess, saver, model.init, writer, epoch, iteration)
 
     writer.close()
-
-
-# deprecated
-def train_old(model):
-    saver = tf.train.Saver()
-    start = time.time()
-    min_loss = None
-
-    with tf.Session() as sess:
-        writer = tf.summary.FileWriter('../graphs/gist', sess.graph)
-        sess.run(tf.global_variables_initializer())
-        sess.run(model.init)
-
-        ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH + '/checkpoint'))
-        if ckpt and ckpt.model_checkpoint_path:
-            saver.restore(sess, ckpt.model_checkpoint_path)
-
-        iteration = model.gstep.eval()
-
-        while True:
-            batch_loss, _ = sess.run([model.loss, model.opt])
-            if (iteration + 1) % model.skip_step == 0:
-                print('Iter {}. \n    Loss {}. Time {}'.format(iteration, batch_loss, time.time() - start))
-                start = time.time()
-                checkpoint_name = config.CPT_PATH + '/'
-                if min_loss is None:
-                    saver.save(sess, checkpoint_name, iteration)
-                elif batch_loss < min_loss:
-                    saver.save(sess, checkpoint_name, iteration)
-                    min_loss = batch_loss
-            iteration += 1
-
 
 def _check_restore_parameters(sess, saver):
     """ Restore the previously trained parameters if there are any. """
@@ -119,11 +87,7 @@ def inference(model):
             sess.run(running_vars_initializer)
 
         _check_restore_parameters(sess, saver)
-        output_file = open(config.PROCESSED_PATH + config.INFERENCE_RESULT_NAME, 'a+')
-
-
-        logging.info
-
+        output_file = open(config.PROCESSED_PATH + config.INFERENCE_RESULT_NAME, 'w+')
 
         try:
             while True:
@@ -132,6 +96,7 @@ def inference(model):
                         [tf.nn.softmax(model.logits, name='softmax_tensor'), tf.argmax(input=model.logits, axis=1),
                          model.acc_op])
                     print(acc)
+                    logging.info(str(acc))
 
                 else:
                     probability, classes = sess.run(

@@ -30,7 +30,7 @@ def main():
 
     if args.mode == 'train':
         if os.path.isdir(config.PROCESSED_PATH):
-    
+
             local_dest = config.PROCESSED_PATH+config.TRAIN_DATA_NAME_PROCESSED
             local_dest_label = config.PROCESSED_PATH + config.TRAIN_LABEL_NAME
 
