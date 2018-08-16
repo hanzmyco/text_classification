@@ -20,7 +20,7 @@ import random
 import re
 import numpy as np
 import config
-
+import config_train_files
 
 def get_lines():
     id2line = {}
@@ -305,5 +305,4 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 
 if __name__ == '__main__':
     #tokenize_data([config.TRAIN_DATA_NAME],config.DATA_PATH+config.TRAIN_LABEL_NAME,config.PROCESSED_PATH+config.TRAIN_LABEL_NAME)
-    process_data([config.TRAIN_DATA_NAME+'.tok'])
-
+    process_data([config_train_files.TRAIN_DATA_NAME+'.tok'])

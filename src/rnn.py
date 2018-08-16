@@ -16,7 +16,8 @@ class RNN(models.BaseModel):
 
 
     def create_actual_model(self, embd):
-        pass
+        return tf.nn.dropout(embd,self.dropout_keep_prob)
+        
 
     def get_hidden_states(self):
 
@@ -33,7 +34,13 @@ class RNN(models.BaseModel):
                     self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1], self.num_classes, None)
 
             else:
-                self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1][1], self.num_classes, None)
+                if config.DROPOUT_KEEP_PROB!=1.0:
+                    with tf.name_scope('dropouts'):
+                        last_state_drop = tf.nn.dropout(self.out_state[len(self.hidden_sizes) - 1][1],self.dropout_keep_prob)
+                    self.logits = tf.layers.dense(last_state_drop, self.num_classes, None)
+
+                else:
+                    self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1][1], self.num_classes, None)
         else:
             self.self_attention()
             self.logits = tf.layers.dense(self.attention_logits, self.num_classes, None)

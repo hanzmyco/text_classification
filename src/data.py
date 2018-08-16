@@ -35,6 +35,8 @@ def get_data(lm,local_dest,local_dest_label=None):
         init_label = iterator_label.make_initializer(batched_dataset_label)
         lm.init.append(init_label)
 
+
+
 def get_pretrain_embedding(lm,local_dest):
     _, embd = data_preprocessing.loadGloVe(local_dest,embedding=True)
     embd.insert(0, [1] * config.PRETRAIN_EMBD_SIZE)
@@ -42,8 +44,3 @@ def get_pretrain_embedding(lm,local_dest):
     lm.embedding_size=config.PRETRAIN_EMBD_SIZE
     lm.pretrain_embd=tf.convert_to_tensor(embd)
     lm.vocab_size=config.PRETRAIN_EMBD_VOCAB_SIZE
-
-
-
-
-

@@ -24,6 +24,9 @@ class BaseModel(object):
         self.embedding_size = config.EMBEDDING_SIZE
         self.vocab_size=config.VOCAB_SIZE
         self.loss=0
+        self.initializer=None
+        if config.INITIALIZER=='xavier':
+            self.initializer=tf.contrib.layers.xavier_initializer()
 
 
     def create_actual_model(self, embd):
@@ -33,57 +36,55 @@ class BaseModel(object):
         pass
 
     def create_model(self,one_hot=False,training=True):
+        with tf.variable_scope('scope_model',reuse=tf.AUTO_REUSE):
+            if one_hot:  # not using embedding layer
+                embed = self.seq
 
-        if one_hot:  # not using embedding layer
-            embed = self.seq
+            else:  # using embedding layer
 
-        else:  # using embedding layer
-            with tf.name_scope('embed'):
-                if not config.PRETRAIN_EMBD_TAG:
-                    embed_matrix = tf.get_variable('embed_matrix',
-                                                   shape=[self.vocab_size, self.embedding_size],
-                                                   initializer=tf.random_uniform_initializer())
+                with tf.name_scope('embed'):
+                    if not config.PRETRAIN_EMBD_TAG:
 
-                else:
-                    embed_matrix = tf.Variable(self.pretrain_embd,
-                                               trainable=config.PRETRAIN_EMBD_TRAINABLE,name='embed_matrix')
-                    '''
-                    #make sure the pretrain embd is load correctly
-                    with tf.Session() as sess:
-                        sess.run(tf.initialize_all_variables())
-                        print(sess.run(embed_matrix))
-                    '''
-                embed = tf.nn.embedding_lookup(embed_matrix, self.seq, name='embedding')
+                            embed_matrix = tf.get_variable('embed_matrix',
+                                                           shape=[self.vocab_size, self.embedding_size],
+                                                           initializer=tf.random_uniform_initializer())
 
-        self.create_actual_model(embed)
+                    else:
+                        embed_matrix = tf.Variable(self.pretrain_embd,
+                                                   trainable=config.PRETRAIN_EMBD_TRAINABLE,name='embed_matrix')
+                        '''
+                        #make sure the pretrain embd is load correctly
+                        with tf.Session() as sess:
+                            sess.run(tf.initialize_all_variables())
+                            print(sess.run(embed_matrix))
+                        '''
+                    embed = tf.nn.embedding_lookup(embed_matrix, self.seq, name='embedding')
 
-        self.get_logits()
+            self.create_actual_model(embed)
 
-        self.logits = tf.layers.batch_normalization(self.logits,name='Batch_Normalization')
+            self.get_logits()
 
-        self.logits = tf.nn.relu(self.logits,name='RELU')
+            self.logits = tf.layers.batch_normalization(self.logits,name='Batch_Normalization')
 
-        _, self.acc_op = tf.metrics.accuracy(labels=tf.argmax(input=self.label, axis=2), predictions=tf.argmax(input=self.logits, axis=1),name = 'my_metrics')
+            self.logits = tf.nn.relu(self.logits,name='RELU')
 
-        if training:
-            loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
-                                                           labels=self.label)
-            self.loss += loss
+            _, self.acc_op = tf.metrics.accuracy(labels=tf.argmax(input=self.label, axis=2), predictions=tf.argmax(input=self.logits, axis=1),name = 'my_metrics')
 
-            self.loss = tf.reduce_sum(self.loss)
+            if training:
+                loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
+                                                               labels=self.label)
+                self.loss += loss
 
-            params = tf.trainable_variables()
+                self.loss = tf.reduce_sum(self.loss)
 
-            optimizer = tf.train.AdamOptimizer(self.lr)
+                params = tf.trainable_variables()
 
-            grad_and_vars = tf.gradients(self.loss,params)
+                optimizer = tf.train.AdamOptimizer(self.lr)
 
-            clipped_gradients , _= tf.clip_by_global_norm(grad_and_vars,0.5)
+                grad_and_vars = tf.gradients(self.loss,params)
 
-            self.opt = optimizer.apply_gradients(zip(clipped_gradients,params),global_step = self.gstep)
+                clipped_gradients , _= tf.clip_by_global_norm(grad_and_vars,0.5)
 
-            #self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
+                self.opt = optimizer.apply_gradients(zip(clipped_gradients,params),global_step = self.gstep)
 
-
-
-
+                #self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)

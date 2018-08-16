@@ -6,19 +6,21 @@ import time
 import tensorflow as tf
 import config
 import logging
+import config_train_files
+import config_test_files
 
 logging.basicConfig(filename=config.LOG_PATH, level=logging.DEBUG)
 
-def train_one_epoch(model, sess, saver, init, writer, epoch, iteration):
+def train_one_epoch(compute_graph_train, compute_graph_validation,sess,init_train,init_validate,saver, writer, epoch, iteration):
     start_time = time.time()
-    sess.run(init)
+    sess.run(init_train)
     total_loss = 0
     n_batches = 0
     checkpoint_name = config.CPT_PATH + '/'
     total_accuracy = 0
     try:
         while True:
-            batch_loss, _, accuracy = sess.run([model.loss, model.opt, model.acc_op])
+            batch_loss, _, accuracy = sess.run([compute_graph_train.loss, compute_graph_train.opt, compute_graph_train.acc_op])
 
             iteration += 1
             total_loss += batch_loss
@@ -30,17 +32,39 @@ def train_one_epoch(model, sess, saver, init, writer, epoch, iteration):
 
     saver.save(sess, checkpoint_name, iteration)
 
-    #logging.basicConfig(filename=config.LOG_PATH, level=logging.DEBUG)
-
     logging.info('Average loss and accuracy at epoch {0}: {1},{2}'.format(epoch, total_loss / n_batches,
                                                                    total_accuracy / n_batches))
     print('Average loss and accuracy at epoch {0}: {1},{2}'.format(epoch, total_loss / n_batches,
                                                                    total_accuracy / n_batches))
     print('Took: {0} seconds'.format(time.time() - start_time))
+
+    # start to test on validation
+    sess.run(init_validate)
+
+    start_time = time.time()
+
+    try:
+        while True:
+            batch_loss, _, accuracy = sess.run([compute_graph_validation.loss, compute_graph_validation.opt, compute_graph_validation.acc_op])
+            iteration += 1
+            total_loss += batch_loss
+            total_accuracy += accuracy
+            n_batches += 1
+    except tf.errors.OutOfRangeError:
+        pass
+
+    logging.info('Average loss and accuracy on validation set at epoch {0}: {1},{2}'.format(epoch, total_loss / n_batches,
+                                                                   total_accuracy / n_batches))
+    print('Average loss and accuracy on validation set at epoch {0}: {1},{2}'.format(epoch, total_loss / n_batches,
+                                                                   total_accuracy / n_batches))
+
+    logging.info('Took: {0} seconds'.format(time.time() - start_time))
+    print('Took: {0} seconds'.format(time.time() - start_time))
+
     return iteration
 
 
-def train(model, n_epochs):
+def train(compute_graph_train, compute_graph_validation,n_epochs):
     writer = tf.summary.FileWriter('../graphs/gist', tf.get_default_graph())
 
     with tf.Session() as sess:
@@ -54,9 +78,9 @@ def train(model, n_epochs):
         saver = tf.train.Saver(max_to_keep=3,save_relative_paths=True)
         _check_restore_parameters(sess, saver)
 
-        iteration = model.gstep.eval()
+        iteration = compute_graph_train.gstep.eval()
         for epoch in range(n_epochs):
-            iteration = train_one_epoch(model,sess, saver, model.init, writer, epoch, iteration)
+            iteration = train_one_epoch(compute_graph_train,compute_graph_validation,sess, saver,compute_graph_train.init,compute_graph_validation.init,writer, epoch, iteration)
 
     writer.close()
 
@@ -80,18 +104,18 @@ def inference(model):
         sess.run(tf.global_variables_initializer())
         sess.run(model.init)
 
-        if hasattr(config, 'INFERENCE_LABEL_NAME'):
+        if hasattr(config_test_files, 'INFERENCE_LABEL_NAME'):
             # initilize accuracy
             running_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope='my_metrics')
             running_vars_initializer = tf.variables_initializer(var_list=running_vars)
             sess.run(running_vars_initializer)
 
         _check_restore_parameters(sess, saver)
-        output_file = open(config.PROCESSED_PATH + config.INFERENCE_RESULT_NAME, 'w+')
+        output_file = open(config.PROCESSED_PATH + config_test_files.INFERENCE_RESULT_NAME, 'w+')
 
         try:
             while True:
-                if hasattr(config, 'INFERENCE_LABEL_NAME'):
+                if hasattr(config_test_files, 'INFERENCE_LABEL_NAME'):
                     probability, classes, acc = sess.run(
                         [tf.nn.softmax(model.logits, name='softmax_tensor'), tf.argmax(input=model.logits, axis=1),
                          model.acc_op])
