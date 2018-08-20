@@ -35,10 +35,10 @@ class BaseModel(object):
     def get_logits(self):
         pass
 
-    def create_model(self,one_hot=False,training=True):
+    def create_model(self,in_data,one_hot=False,training=True):
         with tf.variable_scope('scope_model',reuse=tf.AUTO_REUSE):
             if one_hot:  # not using embedding layer
-                embed = self.seq
+                embed = in_data[0]
 
             else:  # using embedding layer
 
@@ -58,7 +58,7 @@ class BaseModel(object):
                             sess.run(tf.initialize_all_variables())
                             print(sess.run(embed_matrix))
                         '''
-                    embed = tf.nn.embedding_lookup(embed_matrix, self.seq, name='embedding')
+                    embed = tf.nn.embedding_lookup(embed_matrix, in_data[0], name='embedding')
 
             self.create_actual_model(embed)
 
@@ -68,11 +68,11 @@ class BaseModel(object):
 
             self.logits = tf.nn.relu(self.logits,name='RELU')
 
-            _, self.acc_op = tf.metrics.accuracy(labels=tf.argmax(input=self.label, axis=2), predictions=tf.argmax(input=self.logits, axis=1),name = 'my_metrics')
+            _, self.acc_op = tf.metrics.accuracy(labels=tf.argmax(input=in_data[1], axis=2), predictions=tf.argmax(input=self.logits, axis=1),name = 'my_metrics')
 
             if training:
                 loss = tf.nn.softmax_cross_entropy_with_logits(logits=self.logits,
-                                                               labels=self.label)
+                                                               labels=in_data[1])
                 self.loss += loss
 
                 self.loss = tf.reduce_sum(self.loss)

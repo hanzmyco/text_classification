@@ -25,24 +25,12 @@ def main():
 
     if config.MODEL_NAME=='GRU':
         compute_graph = GRU(config.MODEL_NAME)
-        compute_graph_validation = GRU(config.MODEL_NAME)
-
-
     elif config.MODEL_NAME =='LSTM':
         compute_graph = LSTM(config.MODEL_NAME)
-        compute_graph_validation = LSTM(config.MODEL_NAME)
-
-
-
     elif config.MODEL_NAME =='CNN':
         compute_graph = CNN(config.MODEL_NAME)
-        compute_graph_validation = LSTM(config.MODEL_NAME)
-
 
     compute_graph.vocab_size = config.VOCAB_SIZE
-    compute_graph_validation.vocab_size = config.VOCAB_SIZE
-
-
 
     if args.mode == 'train':
         if os.path.isdir(config.PROCESSED_PATH):
@@ -57,14 +45,12 @@ def main():
                 data.get_pretrain_embedding(compute_graph,embd_dest)
                 data.get_pretrain_embedding(compute_graph_validation,embd_dest)
 
-            data.get_data(compute_graph,local_dest,local_dest_label)
-            compute_graph.create_model(config.ONE_HOT_TAG,training=True)
+            next_element,training_init_op= data.get_data(local_dest,local_dest_label)
+            _,validation_init_op =data.get_data(validation_dest,validation_dest_label)
 
-            
-            data.get_data(compute_graph_validation,validation_dest,validation_dest_label)
-            compute_graph_validation.create_model(config.ONE_HOT_TAG,training=False)
+            #compute_graph_validation.create_model(config.ONE_HOT_TAG,training=False)
 
-            run_process.train(compute_graph,compute_graph_validation,config.EPOCH_NUM)
+            run_process.train(compute_graph,next_element,training_init_op,validation_init_op,config.EPOCH_NUM)
 
     elif args.mode == 'inference':
         if os.path.isdir(config.PROCESSED_PATH):
