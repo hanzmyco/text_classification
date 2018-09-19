@@ -33,24 +33,19 @@ def main():
     compute_graph.vocab_size = config.VOCAB_SIZE
 
     if args.mode == 'train':
-        if os.path.isdir(config.PROCESSED_PATH):
+        local_dest = config_train_files.TRAIN_DATA_NAME
+        local_dest_label = config_train_files.TRAIN_LABEL_NAME
+        validation_dest=config_train_files.VALIDATION_DATA_NAME
+        validation_dest_label=config_train_files.VALIDATION_LABEL
 
-            local_dest = config.PROCESSED_PATH+config_train_files.TRAIN_DATA_NAME_PROCESSED
-            local_dest_label = config.PROCESSED_PATH + config_train_files.TRAIN_LABEL_NAME
-            validation_dest=config.PROCESSED_PATH+config_train_files.VALIDATION_DATA_PROCESSED
-            validation_dest_label=config.PROCESSED_PATH+config_train_files.VALIDATION_LABEL
+        if config.PRETRAIN_EMBD_TAG:  # use start pretrain embd or not
+            embd_dest = config.PRETRAIN_EMBD_PATH
+            data.get_pretrain_embedding(compute_graph,embd_dest)
 
-            if config.PRETRAIN_EMBD_TAG:  # use start pretrain embd or not
-                embd_dest = config.PRETRAIN_EMBD_PATH
-                data.get_pretrain_embedding(compute_graph,embd_dest)
-                data.get_pretrain_embedding(compute_graph_validation,embd_dest)
-
-            next_element,training_init_op= data.get_data(local_dest,local_dest_label)
-            _,validation_init_op =data.get_data(validation_dest,validation_dest_label)
-
-            #compute_graph_validation.create_model(config.ONE_HOT_TAG,training=False)
-
-            run_process.train(compute_graph,next_element,training_init_op,validation_init_op,config.EPOCH_NUM)
+        iterator,training_init_op= data.get_data(local_dest,local_dest_label)
+        next_element=iterator.get_next()
+        _,validation_init_op =data.get_data(validation_dest,validation_dest_label,iterator)
+        run_process.train(compute_graph,next_element,training_init_op,validation_init_op,config.EPOCH_NUM)
 
     elif args.mode == 'inference':
         if os.path.isdir(config.PROCESSED_PATH):
@@ -63,9 +58,9 @@ def main():
                 embd_dest = config.PRETRAIN_EMBD_PATH
                 data.get_pretrain_embedding(compute_graph,embd_dest)
 
-            data.get_data(compute_graph, local_dest, local_dest_label)
-            compute_graph.create_model(config.ONE_HOT_TAG,training=False)
-            run_process.inference(compute_graph)
+            iterator,inference_init_op = data.get_data(local_dest, local_dest_label)
+            next_element=iterator.get_next()
+            run_process.inference(compute_graph,next_element,inference_init_op)
 
 
 if __name__ == '__main__':

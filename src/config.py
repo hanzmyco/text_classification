@@ -1,21 +1,19 @@
-#MODEL_NAME='CNN'
-MODEL_NAME='GRU'
+MODEL_NAME='CNN'
+#MODEL_NAME='GRU'
 #MODEL_NAME='LSTM'
 
-# parameters for processing the dataset
-DATA_PATH = '../data/video_info/10_cross_validation/'
-PROCESSED_PATH = '../data/video_info/'
-CPT_PATH = '../model/video_info/checkpoints/'+MODEL_NAME+'/8'
-LOG_PATH='../log/video_info/'+MODEL_NAME+'/10_cross_validation_8.train'
+
+CPT_PATH = '../model/ads/checkpoints/'+MODEL_NAME+'/0'
+LOG_PATH='../log/ads/'+MODEL_NAME+'/data0.txt'
 
 
-VOCAB_SIZE=48301
+VOCAB_SIZE=4567
 UNK_ID = 0
 PAD_ID = 1
 START_ID = 2
 EOS_ID = 3
 
-NUM_STEPS=10
+NUM_STEPS=20
 NUM_LAYERS = 2
 HIDDEN_SIZE = [128,128]
 BATCH_SIZE = 128

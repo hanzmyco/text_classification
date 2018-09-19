@@ -19,25 +19,20 @@ def _parse_label_function(line):
     label=tf.decode_csv(line,[[0]])
     return tf.one_hot(tf.convert_to_tensor(label),config.NUM_CLASSES)
 
-def get_data(local_dest,local_dest_label=None):
+def get_data(local_dest,local_dest_label=None,iterator = None):
     dataset=tf.data.TextLineDataset(local_dest).map(_parse_data_function)
 
     if local_dest_label:
         labelset=tf.data.TextLineDataset(local_dest_label).map(_parse_label_function)
-    #batched_dataset_label = labelset.batch(config.BATCH_SIZE)
         batched_dataset = tf.data.Dataset.zip((dataset,labelset)).batch(config.BATCH_SIZE)
     else:
-        batched_dataset = labelset.batch(config.BATCH_SIZE)
+        batched_dataset = dataset.batch(config.BATCH_SIZE)
 
-    iterator = tf.data.Iterator.from_structure(batched_dataset.output_types,batched_dataset.output_shapes)
-    next_element = iterator.get_next()
+    if iterator == None:
+        iterator = tf.data.Iterator.from_structure(batched_dataset.output_types,batched_dataset.output_shapes)
     init_op = iterator.make_initializer(batched_dataset)
 
-    return next_element,init_op
-
-
-
-
+    return iterator,init_op
 
 
 def get_pretrain_embedding(lm,local_dest):

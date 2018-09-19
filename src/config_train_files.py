@@ -1,6 +1,5 @@
-TRAIN_DATA_NAME= '10_cross_validation/train/train.txt'
-TRAIN_DATA_NAME_PROCESSED= '10_cross_validation/train/train.txt.ids.8'
-TRAIN_LABEL_NAME= '10_cross_validation/train/label.txt.8'
+TRAIN_DATA_NAME= '../data/ads/train/data.0'
+TRAIN_LABEL_NAME= '../data/ads/train/label.0'
 
-VALIDATION_DATA_PROCESSED= '10_cross_validation/test/test.txt.ids.8'
-VALIDATION_LABEL= '10_cross_validation/test/label.test.txt.8'
+VALIDATION_DATA_NAME= '../data/ads/test/data.0'
+VALIDATION_LABEL= '../data/ads/test/label.0'

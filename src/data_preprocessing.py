@@ -39,29 +39,39 @@ def get_lines():
 def tokenize_helper(line):
     tokens = basic_tokenizer(line)
     text = ' '.join(tokens)
-    for a, b in config.CONTRACTIONS:
-        text = text.replace(a, b)
+    #for a, b in config.CONTRACTIONS:
+        #text = text.replace(a, b)
     return text
 
+def chinese_simple_tokenizer(line):
+    text=line
+    tokenized_text=''
+    for token in text:
+        tokenized_text+=token+' '
+    tokenized_text=tokenized_text.strip()
+    return tokenized_text
 
-def tokenize_data(file_names,origin_labels,delete_repeated_labels_filename):
-    print('Tokenizing the data ...')
-    repeated_line_ids=set()
-    deleted_labels_file = open(delete_repeated_labels_filename,'w')
 
-    for file_name in file_names:
+
+
+
+def tokenize_data(file_name,origin_labels,delete_repeated_labels_filename,tokenized_data_filename):
+        print('Tokenizing the data ...')
+        repeated_line_ids=set()
+        deleted_labels_file = open(delete_repeated_labels_filename,'w')
+
         seen_texts = set()
-        actual_file=config.DATA_PATH+file_name
+        actual_file=file_name
 
-        out_file = open(config.PROCESSED_PATH+file_name+'.tok','w')
-        train_lines = open(actual_file,'r').readlines()
+        out_file = open(tokenized_data_filename,'w',encoding='utf-8')
+        train_lines = open(actual_file,'r',encoding='utf-8').readlines()
 
         n = len(train_lines)
         repeated=0
 
         for i in range(n):
             train= train_lines[i]
-            train_clean = tokenize_helper(train)
+            train_clean = chinese_simple_tokenizer(train)
             if train_clean in seen_texts:
                 print(train_clean)
                 repeated += 1
@@ -75,6 +85,7 @@ def tokenize_data(file_names,origin_labels,delete_repeated_labels_filename):
         for index, ite in enumerate(label_file):
             if index not in repeated_line_ids:
                 deleted_labels_file.write(ite)
+
 
 
 
@@ -134,7 +145,7 @@ def basic_tokenizer(line, normalize_digits=False):
 
 
 def build_vocab(filename, normalize_digits=False):
-    in_path = os.path.join(config.PROCESSED_PATH, filename)
+    in_path = filename
     out_path = os.path.join(config.PROCESSED_PATH, 'vocab.{}'.format(filename[-7:-4]))
 
     vocab = {}
@@ -175,21 +186,21 @@ def sentence2id(vocab, line):
     return [vocab.get(token, vocab['<unk>']) for token in line.split(' ')]
 
 
-def token2id(data, mode):
+def token2id(data_in_name,data_out_name,mode):
     """ Convert all the tokens in the data into their corresponding
     index in the vocabulary. """
     if config.PRETRAIN_EMBD_TAG:
         vocab_path = 'vocab.embd.' + mode
-        out_path = data + '.embd.' + mode + '.ids'
+        out_path = data_out_name + '.embd.'
     else:
         vocab_path = 'vocab.' + mode
-        out_path = data + '.' + mode + '.ids'
+        out_path = data_out_name
 
-    in_path = data + '.' + mode + '.tok'
+    in_path = data_in_name
 
     _, vocab = load_vocab(os.path.join(config.PROCESSED_PATH, vocab_path))
-    in_file = open(os.path.join(config.PROCESSED_PATH, in_path), 'r',encoding='utf-8')
-    out_file = open(os.path.join(config.PROCESSED_PATH, out_path), 'w',encoding='utf-8')
+    in_file = open(in_path, 'r',encoding='utf-8')
+    out_file = open(out_path, 'w',encoding='utf-8')
 
     lines = in_file.read().splitlines()
     for line in lines:
@@ -227,15 +238,14 @@ def build_vocab_from_pretrain_embd(file_name):
         out_file.write(ite+'\n')
 
 
-def process_data(file_names):
+def process_data(file_name):
     print('Preparing data to be model-ready ...')
-    for file_name in file_names:
-        if config.PRETRAIN_EMBD_TAG:
+    if config.PRETRAIN_EMBD_TAG:
             build_vocab_from_pretrain_embd(config.PRETRAIN_EMBD_PATH)
-        else:
+    else:
             build_vocab(file_name)
 
-    token2id('train', 'txt')
+    token2id(config.TOKENIZED_DATA,config.ID_DATA, 'txt')
 
 
 def load_data(enc_filename, dec_filename, max_training_size=None):
@@ -304,5 +314,5 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 
 
 if __name__ == '__main__':
-    #tokenize_data([config.TRAIN_DATA_NAME],config.DATA_PATH+config.TRAIN_LABEL_NAME,config.PROCESSED_PATH+config.TRAIN_LABEL_NAME)
-    process_data([config_train_files.TRAIN_DATA_NAME+'.tok'])
+    tokenize_data(config.ORIGIN_DATA,config.ORIGIN_LABEL,config.PROCESSED_LABEL,config.TOKENIZED_DATA)
+    process_data(config.TOKENIZED_DATA)
