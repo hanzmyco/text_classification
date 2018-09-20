@@ -1,4 +1,4 @@
-import argparse
+simport argparse
 import utils
 import config
 import os
@@ -12,10 +12,12 @@ import tensorflow as tf
 
 def main():
     # set up check points location
+    utils.safe_mkdir('../checkpoints')
     utils.safe_mkdir('../checkpoints/'+config.PROJECT_NAME)
     utils.safe_mkdir('../checkpoints/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
     utils.safe_mkdir(config.CPT_PATH)
 
+    utils.safe_mkdir('../log')
     utils.safe_mkdir('../log/'+config.PROJECT_NAME)
     utils.safe_mkdir('../log/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
     utils.safe_mkdir(config.LOG_PATH)
