@@ -6,8 +6,8 @@ import time
 import tensorflow as tf
 import config
 import logging
-import config_train_files
-import config_test_files
+
+
 
 logging.basicConfig(filename=config.LOG_PATH, level=logging.DEBUG)
 
@@ -94,6 +94,8 @@ def train(compute_graph,next_element,training_init_op,validation_init_op,n_epoch
 def _check_restore_parameters(sess, saver):
     """ Restore the previously trained parameters if there are any. """
     ckpt = tf.train.get_checkpoint_state(os.path.dirname(config.CPT_PATH + '/checkpoint'))
+    logging.info(config.CPT_PATH+'/checkpoint')
+    print(config.CPT_PATH+'/checkpoint')
     if ckpt and ckpt.model_checkpoint_path:
         logging.basicConfig(filename=config.LOG_PATH, level=logging.DEBUG)
         logging.info("Loading parameters for text classifier")
@@ -108,7 +110,7 @@ def _check_restore_parameters(sess, saver):
 def inference(compute_graph,next_element,inference_init_op):
 
 
-    output_file = open(config.PROCESSED_PATH + config_test_files.INFERENCE_RESULT_NAME, 'w+')
+    output_file = open(config.TEST_DATA_PATH + config.INFERENCE_RESULT_NAME, 'w+')
 
     with tf.Session() as sess:
         compute_graph.create_model(next_element,config.ONE_HOT_TAG,training=False)
@@ -135,7 +137,7 @@ def inference(compute_graph,next_element,inference_init_op):
 
         try:
             while True:
-                if hasattr(config_test_files, 'INFERENCE_LABEL_NAME'):
+                if hasattr(config, 'TEST_LABEL_NAME'):
                     probability, classes, acc = sess.run(
                         [tf.nn.softmax(compute_graph.logits, name='softmax_tensor'), tf.argmax(input=compute_graph.logits, axis=1),
                          compute_graph.acc_op])

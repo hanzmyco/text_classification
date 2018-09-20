@@ -20,7 +20,7 @@ import random
 import re
 import numpy as np
 import config
-import config_train_files
+
 
 def get_lines():
     id2line = {}

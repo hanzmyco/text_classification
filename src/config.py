@@ -1,10 +1,27 @@
-MODEL_NAME='CNN'
+PROJECT_NAME='ads'
+
+#MODEL_NAME='CNN'
 #MODEL_NAME='GRU'
-#MODEL_NAME='LSTM'
+MODEL_NAME='LSTM'
+
+TRAIN_DATA_PATH = '../data/'+PROJECT_NAME+'/train/'
+VALIDATION_DATA_PATH = '../data/'+PROJECT_NAME+'/test/'
+TEST_DATA_PATH = '../data/'+PROJECT_NAME+'/test/'
+
+TRAIN_DATA_NAME= 'data.0'
+TRAIN_LABEL_NAME= 'label.0'
+
+VALIDATION_DATA_NAME= 'data.0'
+VALIDATION_LABEL= 'label.0'
+
+TEST_DATA_NAME= 'data.0'
+TEST_LABEL_NAME= 'label.0'
+
+INFERENCE_RESULT_NAME='result.0'
 
 
-CPT_PATH = '../model/ads/checkpoints/'+MODEL_NAME+'/0'
-LOG_PATH='../log/ads/'+MODEL_NAME+'/data0.txt'
+CPT_PATH = '../checkpoints/'+PROJECT_NAME+'/'+MODEL_NAME+'/'+TRAIN_DATA_NAME
+LOG_PATH='../log/'+PROJECT_NAME+'/'+MODEL_NAME+'/log_'+TRAIN_DATA_NAME
 
 
 VOCAB_SIZE=4567

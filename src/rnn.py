@@ -17,7 +17,7 @@ class RNN(models.BaseModel):
 
     def create_actual_model(self, embd):
         return tf.nn.dropout(embd,self.dropout_keep_prob)
-        
+
 
     def get_hidden_states(self):
 
@@ -42,9 +42,12 @@ class RNN(models.BaseModel):
                 else:
                     self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1][1], self.num_classes, None)
         else:
-            self.self_attention()
-            self.logits = tf.layers.dense(self.attention_logits, self.num_classes, None)
-            print('test attention')
+            if config.MODEL_NAME !='LSTM':
+                self.self_attention()
+                self.logits = tf.layers.dense(self.attention_logits, self.num_classes, None)
+                print('test attention')
+            else:
+                pass
 
     def self_attention(self,self_attention_tag = config.SELF_ATTENTION_TAG):
 
