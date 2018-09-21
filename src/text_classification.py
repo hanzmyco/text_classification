@@ -1,4 +1,4 @@
-simport argparse
+import argparse
 import utils
 import config
 import os
@@ -15,12 +15,12 @@ def main():
     utils.safe_mkdir('../checkpoints')
     utils.safe_mkdir('../checkpoints/'+config.PROJECT_NAME)
     utils.safe_mkdir('../checkpoints/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
-    utils.safe_mkdir(config.CPT_PATH)
+    #utils.safe_mkdir(config.CPT_PATH)
 
     utils.safe_mkdir('../log')
     utils.safe_mkdir('../log/'+config.PROJECT_NAME)
     utils.safe_mkdir('../log/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
-    utils.safe_mkdir(config.LOG_PATH)
+    #utils.safe_mkdir(config.LOG_PATH)
     logging.basicConfig(filename=config.LOG_PATH,level=logging.DEBUG)
 
     parser = argparse.ArgumentParser()

@@ -7,10 +7,6 @@ import tensorflow as tf
 import config
 import logging
 
-
-
-logging.basicConfig(filename=config.LOG_PATH, level=logging.DEBUG)
-
 def train_one_epoch(compute_graph,sess,init_train,init_validate,saver, writer, epoch, iteration):
     start_time = time.time()
     total_loss = 0
@@ -69,24 +65,13 @@ def train(compute_graph,next_element,training_init_op,validation_init_op,n_epoch
 
     with tf.Session() as sess:
         compute_graph.create_model(next_element,config.ONE_HOT_TAG,training=True)
-
         sess.run(tf.global_variables_initializer())
         sess.run(tf.local_variables_initializer())
-        # initilize accuracy
-        #running_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope='my_metrics')
-        #running_vars_initializer = tf.variables_initializer(var_list=running_vars)
-        #sess.run(running_vars_initializer)
-
         saver = tf.train.Saver(max_to_keep=3,save_relative_paths=True)
-
-
         iteration = compute_graph.gstep.eval()
-
         _check_restore_parameters(sess, saver)
 
         for epoch in range(n_epochs):
-
-
             iteration = train_one_epoch(compute_graph,sess,training_init_op,validation_init_op,saver,writer, epoch, iteration)
 
     writer.close()
@@ -108,39 +93,28 @@ def _check_restore_parameters(sess, saver):
 
 
 def inference(compute_graph,next_element,inference_init_op):
-
-
     output_file = open(config.TEST_DATA_PATH + config.INFERENCE_RESULT_NAME, 'w+')
 
     with tf.Session() as sess:
         compute_graph.create_model(next_element,config.ONE_HOT_TAG,training=False)
-
         saver = tf.train.Saver()
-
         sess.run(tf.global_variables_initializer())
-
         sess.run(tf.local_variables_initializer())
-
         _check_restore_parameters(sess, saver)
-
-
         sess.run(inference_init_op)
-
-        '''
-        if hasattr(config_test_files, 'INFERENCE_LABEL_NAME'):
-            # initilize accuracy
-            running_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope='my_metrics')
-            running_vars_initializer = tf.variables_initializer(var_list=running_vars)
-            sess.run(running_vars_initializer)
-        '''
-
 
         try:
             while True:
                 if hasattr(config, 'TEST_LABEL_NAME'):
-                    probability, classes, acc = sess.run(
-                        [tf.nn.softmax(compute_graph.logits, name='softmax_tensor'), tf.argmax(input=compute_graph.logits, axis=1),
-                         compute_graph.acc_op])
+                    if config.SELF_ATTENTION_TAG:
+                        probability, classes, acc,A = sess.run(
+                            [tf.nn.softmax(compute_graph.logits, name='softmax_tensor'), tf.argmax(input=compute_graph.logits, axis=1),
+                             compute_graph.acc_op,compute_graph.A])
+
+                    else:
+                        probability, classes, acc = sess.run(
+                            [tf.nn.softmax(compute_graph.logits, name='softmax_tensor'), tf.argmax(input=compute_graph.logits, axis=1),
+                             compute_graph.acc_op])
                     print(acc)
                     logging.info(str(acc))
 
