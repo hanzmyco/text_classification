@@ -9,26 +9,31 @@ def _parse_data_function(line):
     else:
         return tf.cast(parsed_line,tf.int32)
 
+def _test_parse_data_function(line):
+    parsed_line =tf.decode_raw(line,out_type = tf.unit8)
+    return tf.cast(parsed_line,tf.int32)
+
+
 def _parse_label_function(line):
 
     label=tf.decode_csv(line,[[0]])
     return tf.one_hot(tf.convert_to_tensor(label),config.NUM_CLASSES)
 
-def get_data(lm,local_dest,local_dest_label=None):
+def get_data(local_dest,local_dest_label=None,iterator = None):
     dataset=tf.data.TextLineDataset(local_dest).map(_parse_data_function)
-    batched_dataset = dataset.batch(config.BATCH_SIZE)
-    iterator = batched_dataset.make_initializable_iterator()
-    lm.seq= iterator.get_next()
-    init = iterator.make_initializer(batched_dataset)
-    lm.init=[init]
 
     if local_dest_label:
         labelset=tf.data.TextLineDataset(local_dest_label).map(_parse_label_function)
-        batched_dataset_label = labelset.batch(config.BATCH_SIZE)
-        iterator_label = batched_dataset_label.make_initializable_iterator()
-        lm.label = iterator_label.get_next()
-        init_label = iterator_label.make_initializer(batched_dataset_label)
-        lm.init.append(init_label)
+        batched_dataset = tf.data.Dataset.zip((dataset,labelset)).batch(config.BATCH_SIZE)
+    else:
+        batched_dataset = dataset.batch(config.BATCH_SIZE)
+
+    if iterator == None:
+        iterator = tf.data.Iterator.from_structure(batched_dataset.output_types,batched_dataset.output_shapes)
+    init_op = iterator.make_initializer(batched_dataset)
+
+    return iterator,init_op
+
 
 def get_pretrain_embedding(lm,local_dest):
     _, embd = data_preprocessing.loadGloVe(local_dest,embedding=True)
@@ -37,8 +42,3 @@ def get_pretrain_embedding(lm,local_dest):
     lm.embedding_size=config.PRETRAIN_EMBD_SIZE
     lm.pretrain_embd=tf.convert_to_tensor(embd)
     lm.vocab_size=config.PRETRAIN_EMBD_VOCAB_SIZE
-
-
-
-
-

@@ -8,4 +8,4 @@ import config
 import rnn
 
 class HAN(rnn.RNN):
-    
+    pass
