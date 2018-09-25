@@ -55,20 +55,19 @@ class RNN(models.BaseModel):
             W_s1 = tf.get_variable('attention_matrix',
                                            shape=[config.ATTENTION_SIZE, 2*self.hidden_sizes[-1]],
                                            initializer=tf.random_uniform_initializer())
-            w_s2 = tf.get_variable('attention_vector',
+            W_s2 = tf.get_variable('attention_vector',
                                            shape=[self.num_topics, config.ATTENTION_SIZE],
                                            initializer=tf.random_uniform_initializer())
 
             self.A = tf.nn.softmax(tf.map_fn(
-                lambda x:tf.matmul(w_s2,x),
+                lambda x:tf.matmul(W_s2,x),
                 tf.tanh(
                     tf.map_fn(
                         lambda x : tf.matmul(W_s1,tf.transpose(x)),
                     self.output)
                 )
             ),name='Attention_matrix')
-
-
+            
             M = tf.matmul(self.A,self.output)
 
             # currently support topics with same weight

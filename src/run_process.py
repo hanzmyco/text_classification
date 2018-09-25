@@ -54,8 +54,6 @@ def train_one_epoch(compute_graph,sess,init_train,init_validate,saver, writer, e
     except tf.errors.OutOfRangeError:
         logging.info('Average loss and accuracy at validation set is {0},{1}'.format(total_loss / n_batches,total_accuracy / n_batches))
         print('Average loss and accuracy at validation set is : {0},{1}'.format(total_loss / n_batches,total_accuracy / n_batches))
-        pass
-
 
     return iteration
 
@@ -91,6 +89,21 @@ def _check_restore_parameters(sess, saver):
         logging.info("Initializing fresh parameters for text classifier")
         print("Initializing fresh parameters for text classifier")
 
+def visualization(attention,text_data_id,f):
+    f.write('<div style="margin:25px;">\n')
+    print('yoyo')
+
+    for i in range(len(attention)):
+        for k in range(len(attention[i])):
+            f.write('<p style="margin:10px;">\n')
+            for j in range(len(attention[i][k])):
+                alpha = "{:.2f}".format(attention[i][k][j])
+                w=text_data_id[0][i][j]
+                html_text='\t<span style="margin-left:3px;background-color:rgba(255,0,0,'+str(alpha)+')">'+str(w)+'</span>\n'
+                f.write(html_text)
+            f.write('</p>\n')
+        f.write('</div>\n')
+    pass
 
 def inference(compute_graph,next_element,inference_init_op):
     output_file = open(config.TEST_DATA_PATH + config.INFERENCE_RESULT_NAME, 'w+')
@@ -104,13 +117,16 @@ def inference(compute_graph,next_element,inference_init_op):
         sess.run(inference_init_op)
 
         try:
+            if config.VISUALIZATION:
+                f = open('visualize.html', 'w')
+                f.write('<html style="margin:0;padding:0;"><body style="margin:0;padding:0;">\n')
+
             while True:
                 if hasattr(config, 'TEST_LABEL_NAME'):
                     if config.SELF_ATTENTION_TAG:
-                        probability, classes, acc,A = sess.run(
+                        probability, classes, acc,attention,text_data_id = sess.run(
                             [tf.nn.softmax(compute_graph.logits, name='softmax_tensor'), tf.argmax(input=compute_graph.logits, axis=1),
-                             compute_graph.acc_op,compute_graph.A])
-
+                             compute_graph.acc_op,compute_graph.A,next_element])
                     else:
                         probability, classes, acc = sess.run(
                             [tf.nn.softmax(compute_graph.logits, name='softmax_tensor'), tf.argmax(input=compute_graph.logits, axis=1),
@@ -119,12 +135,23 @@ def inference(compute_graph,next_element,inference_init_op):
                     logging.info(str(acc))
 
                 else:
-                    probability, classes = sess.run(
-                        [tf.nn.softmax(compute_graph.logits, name='softmax_tensor'), tf.argmax(input=compute_graph.logits, axis=1)])
+                    if config.SELF_ATTENTION_TAG:
+                        probability, classes, attention = sess.run(
+                            [tf.nn.softmax(compute_graph.logits, name='softmax_tensor'), tf.argmax(input=compute_graph.logits, axis=1),compute_graph.A])
+                    else:
+                        probability, classes = sess.run(
+                            [tf.nn.softmax(compute_graph.logits, name='softmax_tensor'), tf.argmax(input=compute_graph.logits, axis=1)])
 
-                # print(probability)
                 for ite in classes:
                     output_file.write(str(ite) + '\n')
+
+                if config.VISUALIZATION:
+                    visualization(attention,text_data_id,f)
+                    pass
+
+            if config.VISUALIZATION:
+                f.write('</body></html>')
+                f.close()
 
         except tf.errors.OutOfRangeError:
             output_file.close()
