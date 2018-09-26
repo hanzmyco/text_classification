@@ -42,12 +42,10 @@ class RNN(models.BaseModel):
                 else:
                     self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1][1], self.num_classes, None)
         else:
-            #if config.MODEL_NAME !='LSTM':
             self.self_attention()
             self.logits = tf.layers.dense(self.attention_logits, self.num_classes, None)
-            print('test attention')
-            #else:
-                #pass
+            print('self-attention')
+        
 
     def self_attention(self,self_attention_tag = config.SELF_ATTENTION_TAG):
 
@@ -67,7 +65,7 @@ class RNN(models.BaseModel):
                     self.output)
                 )
             ),name='Attention_matrix')
-            
+
             M = tf.matmul(self.A,self.output)
 
             # currently support topics with same weight
@@ -77,6 +75,8 @@ class RNN(models.BaseModel):
             tile_eye = tf.tile(tf.eye(self.num_topics), [tf.shape(self.A)[0], 1])
             tile_eye = tf.reshape(tile_eye, [-1, self.num_topics, self.num_topics])
             AA_T = tf.matmul(self.A, A_T) - tile_eye
+
+            # regularlization term
             self.loss += config.ATTENTION_COEF*tf.square(tf.norm(AA_T, axis=[-2, -1], ord='fro'))
 
         else:

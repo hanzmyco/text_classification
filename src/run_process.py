@@ -118,7 +118,7 @@ def inference(compute_graph,next_element,inference_init_op):
 
         try:
             if config.VISUALIZATION:
-                f = open('visualize.html', 'w')
+                f = open(config.VISUALIZATION_PATH+'_visualization.html', 'w')
                 f.write('<html style="margin:0;padding:0;"><body style="margin:0;padding:0;">\n')
 
             while True:
