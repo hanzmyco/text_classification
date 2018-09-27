@@ -5,12 +5,12 @@ sys.path.append('..')
 import tensorflow as tf
 import models
 import config
+import SelfAttention
 
 class RNN(models.BaseModel):
     def __init__(self,model):
         models.BaseModel.__init__(self,model)
         self.hidden_sizes = config.HIDDEN_SIZE
-        #self.attention_size = config.ATTENTION_SIZE
         self.num_topics = config.NUM_TOPICS
         self.dropout_keep_prob = config.DROPOUT_KEEP_PROB
 
@@ -31,6 +31,7 @@ class RNN(models.BaseModel):
 
         else:
             self.logits = tf.layers.dense(self.out_state[len(self.hidden_sizes) - 1][1], self.num_classes, None)
+
     def gru_logits(self):
         if config.DROPOUT_KEEP_PROB!=1.0:
             with tf.name_scope('dropouts'):
@@ -41,13 +42,17 @@ class RNN(models.BaseModel):
 
 
     def get_logits(self):
-        if not config.SELF_ATTENTION_TAG:
+        if not config.ATTENTION_TAG:
             if config.MODEL_NAME !='LSTM':
                 self.gru_logits()
             else:
                 self.lstm_logits()
         else:
-            self.self_Attention()
+            if config.SELF_ATTENTION_TAG:
+                sf_instance = SelfAttention.SelfAttention()
+                self.A,self.attention_logits=sf_instance.createAttention(self.output,self.loss)
+            elif config.CNN_ATTENTION_TAG:
+                pass
             self.logits = tf.layers.dense(self.attention_logits, self.num_classes, None)
 
 
