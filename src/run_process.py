@@ -91,8 +91,7 @@ def _check_restore_parameters(sess, saver):
 
 def visualization(attention,text_data_id,f):
     f.write('<div style="margin:25px;">\n')
-    print('yoyo')
-
+    
     for i in range(len(attention)):
         for k in range(len(attention[i])):
             f.write('<p style="margin:10px;">\n')
