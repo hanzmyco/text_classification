@@ -49,6 +49,7 @@ class BaseModel(object):
                                                            shape=[self.vocab_size, self.embedding_size],
                                                            initializer=tf.random_uniform_initializer())
 
+
                     else:
                         embed_matrix = tf.Variable(self.pretrain_embd,
                                                    trainable=config.PRETRAIN_EMBD_TRAINABLE,name='embed_matrix')
@@ -59,6 +60,8 @@ class BaseModel(object):
                             print(sess.run(embed_matrix))
                         '''
                     embed = tf.nn.embedding_lookup(embed_matrix, in_data[0], name='embedding')
+                    print(embed_matrix.name)
+                    print(embed.name)
 
             self.create_actual_model(embed)
 

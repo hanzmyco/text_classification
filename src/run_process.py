@@ -6,6 +6,10 @@ import time
 import tensorflow as tf
 import config
 import logging
+from tensorflow.python.tools import inspect_checkpoint as chkp
+from tensorflow.python import pywrap_tensorflow
+import numpy
+import utils
 
 def train_one_epoch(compute_graph,sess,init_train,init_validate,saver, writer, epoch, iteration):
     start_time = time.time()
@@ -91,7 +95,7 @@ def _check_restore_parameters(sess, saver):
 
 def visualization(attention,text_data_id,f):
     f.write('<div style="margin:25px;">\n')
-    
+
     for i in range(len(attention)):
         for k in range(len(attention[i])):
             f.write('<p style="margin:10px;">\n')
@@ -103,6 +107,40 @@ def visualization(attention,text_data_id,f):
             f.write('</p>\n')
         f.write('</div>\n')
     pass
+
+def test_restore():
+        #tensor_name='scope_model/scope_model/embed_matrix/Adam_1'
+        #chkp.print_tensors_in_checkpoint_file(config.CPT_PATH+'/-452', tensor_name=tensor_name, all_tensors=False)
+
+        file_name=config.CPT_PATH+config.CKPT_FILE_NAME
+
+        reader = pywrap_tensorflow.NewCheckpointReader(file_name)
+        var_to_shape_map = reader.get_variable_to_shape_map()
+        for tensor_name in var_to_shape_map:
+            print('tensor_name: ',tensor_name)
+            target = reader.get_tensor(tensor_name)
+            utils.safe_mkdir_depths(config.CAFFEE_MODEL_PATH+tensor_name)
+            numpy.save(config.CAFFEE_MODEL_PATH+tensor_name,target)
+
+
+
+
+
+        '''
+        target = reader.get_tensor(tensor_name)
+        print(type(target))
+        print(target)
+        numpy.save('../model/ads/caffee/test',target)
+        '''
+
+
+
+
+
+
+
+
+
 
 def inference(compute_graph,next_element,inference_init_op):
     output_file = open(config.TEST_DATA_PATH + config.INFERENCE_RESULT_NAME, 'w+')

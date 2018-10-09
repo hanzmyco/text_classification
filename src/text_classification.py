@@ -12,21 +12,31 @@ import tensorflow as tf
 
 def main():
     # set up check points location
+    utils.safe_mkdir_depths('../checkpoints/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
+    '''
     utils.safe_mkdir('../checkpoints')
     utils.safe_mkdir('../checkpoints/'+config.PROJECT_NAME)
     utils.safe_mkdir('../checkpoints/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
+    '''
 
+    '''
     utils.safe_mkdir('../log')
     utils.safe_mkdir('../log/'+config.PROJECT_NAME)
     utils.safe_mkdir('../log/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
+    '''
+    utils.safe_mkdir_depths('../log/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
     logging.basicConfig(filename=config.LOG_PATH,level=logging.DEBUG)
 
+    '''
     utils.safe_mkdir('../visualization')
     utils.safe_mkdir('../visualization/'+config.PROJECT_NAME)
     utils.safe_mkdir('../visualization/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
+    '''
+    utils.safe_mkdir_depths('../visualization/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
+
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', choices={'train', 'inference'},
+    parser.add_argument('--mode', choices={'train', 'inference','transfer'},
                         default='train', help="mode. if not specified, it's in the train mode")
     args = parser.parse_args()
 
@@ -67,6 +77,9 @@ def main():
         iterator,inference_init_op = data.get_data(local_dest, local_dest_label)
         next_element=iterator.get_next()
         run_process.inference(compute_graph,next_element,inference_init_op)
+
+    elif args.mode == 'transfer':
+        run_process.test_restore()
 
 
 if __name__ == '__main__':

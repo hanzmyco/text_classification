@@ -18,8 +18,11 @@ def safe_mkdir(path):
         os.mkdir(path)
     except OSError:
         pass
-
-
+def safe_mkdir_depths(path):
+    indexs = [i for i, ltr in enumerate(path) if ltr == '/']
+    for index in indexs:
+        sub_path =path[:index]
+        safe_mkdir(sub_path)
 
 def vocab_encode(text, vocab):
     return [vocab.index(x) + 1 for x in text if x in vocab]
