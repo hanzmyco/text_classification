@@ -19,6 +19,7 @@ import os
 import random
 import re
 import numpy as np
+import config_preprocessing
 import config
 
 
@@ -146,7 +147,7 @@ def basic_tokenizer(line, normalize_digits=False):
 
 def build_vocab(filename, normalize_digits=False):
     in_path = filename
-    out_path = os.path.join(config.PROCESSED_PATH, 'vocab.{}'.format(filename[-7:-4]))
+    out_path = os.path.join(config_preprocessing.PROCESSED_PATH, 'vocab.{}'.format(filename[-7:-4]))
 
     vocab = {}
     with open(in_path, 'r',encoding='utf-8') as f:
@@ -198,7 +199,7 @@ def token2id(data_in_name,data_out_name,mode):
 
     in_path = data_in_name
 
-    _, vocab = load_vocab(os.path.join(config.PROCESSED_PATH, vocab_path))
+    _, vocab = load_vocab(os.path.join(config_preprocessing.PROCESSED_PATH, vocab_path))
     in_file = open(in_path, 'r',encoding='utf-8')
     out_file = open(out_path, 'w',encoding='utf-8')
 
@@ -245,12 +246,12 @@ def process_data(file_name):
     else:
             build_vocab(file_name)
 
-    token2id(config.TOKENIZED_DATA,config.ID_DATA, 'txt')
+    token2id(config_preprocessing.TOKENIZED_DATA,config_preprocessing.ID_DATA, 'txt')
 
 
 def load_data(enc_filename, dec_filename, max_training_size=None):
-    encode_file = open(os.path.join(config.PROCESSED_PATH, enc_filename), 'r')
-    decode_file = open(os.path.join(config.PROCESSED_PATH, dec_filename), 'r')
+    encode_file = open(os.path.join(config_preprocessing.PROCESSED_PATH, enc_filename), 'r')
+    decode_file = open(os.path.join(config_preprocessing.PROCESSED_PATH, dec_filename), 'r')
     encode, decode = encode_file.readline(), decode_file.readline()
     data_buckets = [[] for _ in config.BUCKETS]
     i = 0
@@ -314,5 +315,6 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 
 
 if __name__ == '__main__':
-    tokenize_data(config.ORIGIN_DATA,config.ORIGIN_LABEL,config.PROCESSED_LABEL,config.TOKENIZED_DATA)
-    process_data(config.TOKENIZED_DATA)
+    tokenize_data(config_preprocessing.ORIGIN_DATA,config_preprocessing.ORIGIN_LABEL,config_preprocessing.PROCESSED_LABEL,config_preprocessing.TOKENIZED_DATA)
+    process_data(config_preprocessing.TOKENIZED_DATA)
+

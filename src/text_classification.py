@@ -12,7 +12,7 @@ import tensorflow as tf
 
 def main():
     # set up check points location
-    utils.safe_mkdir_depths('../checkpoints/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
+    utils.safe_mkdir_depths('../checkpoints/'+config.PROJECT_NAME+'/'+config.MODEL_NAME+'/')
     '''
     utils.safe_mkdir('../checkpoints')
     utils.safe_mkdir('../checkpoints/'+config.PROJECT_NAME)
@@ -24,7 +24,7 @@ def main():
     utils.safe_mkdir('../log/'+config.PROJECT_NAME)
     utils.safe_mkdir('../log/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
     '''
-    utils.safe_mkdir_depths('../log/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
+    utils.safe_mkdir_depths('../log/'+config.PROJECT_NAME+'/'+config.MODEL_NAME+'/')
     logging.basicConfig(filename=config.LOG_PATH,level=logging.DEBUG)
 
     '''
@@ -32,7 +32,7 @@ def main():
     utils.safe_mkdir('../visualization/'+config.PROJECT_NAME)
     utils.safe_mkdir('../visualization/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
     '''
-    utils.safe_mkdir_depths('../visualization/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
+    utils.safe_mkdir_depths('../visualization/'+config.PROJECT_NAME+'/'+config.MODEL_NAME+'/')
 
 
     parser = argparse.ArgumentParser()
