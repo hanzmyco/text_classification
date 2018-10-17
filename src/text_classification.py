@@ -4,7 +4,7 @@ sys.path.append('model/')
 sys.path.append('model/RNN')
 sys.path.append('model/CNN')
 sys.path.append('model/Attention')
-sys.path.append('read_data/')
+sys.path.append('data/')
 
 import argparse
 import utils
@@ -21,27 +21,9 @@ import tensorflow as tf
 def main():
     # set up check points location
     utils.safe_mkdir_depths('../checkpoints/'+config.PROJECT_NAME+'/'+config.MODEL_NAME+'/')
-    '''
-    utils.safe_mkdir('../checkpoints')
-    utils.safe_mkdir('../checkpoints/'+config.PROJECT_NAME)
-    utils.safe_mkdir('../checkpoints/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
-    '''
-
-    '''
-    utils.safe_mkdir('../log')
-    utils.safe_mkdir('../log/'+config.PROJECT_NAME)
-    utils.safe_mkdir('../log/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
-    '''
     utils.safe_mkdir_depths('../log/'+config.PROJECT_NAME+'/'+config.MODEL_NAME+'/')
     logging.basicConfig(filename=config.LOG_PATH,level=logging.DEBUG)
-
-    '''
-    utils.safe_mkdir('../visualization')
-    utils.safe_mkdir('../visualization/'+config.PROJECT_NAME)
-    utils.safe_mkdir('../visualization/'+config.PROJECT_NAME+'/'+config.MODEL_NAME)
-    '''
     utils.safe_mkdir_depths('../visualization/'+config.PROJECT_NAME+'/'+config.MODEL_NAME+'/')
-
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', choices={'train', 'inference','transfer'},
