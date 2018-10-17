@@ -1,3 +1,11 @@
+import sys
+sys.path.append('utils/')
+sys.path.append('model/')
+sys.path.append('model/RNN')
+sys.path.append('model/CNN')
+sys.path.append('model/Attention')
+sys.path.append('read_data/')
+
 import argparse
 import utils
 import config

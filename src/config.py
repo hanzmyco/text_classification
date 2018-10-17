@@ -1,4 +1,6 @@
-PROJECT_NAME='liulanqi'
+PROJECT_NAME='ads_liulanqi'
+data_index='8'
+VOCAB_SIZE=2776
 
 #MODEL_NAME='CNN'
 #MODEL_NAME='GRU'
@@ -8,23 +10,24 @@ TRAIN_DATA_PATH = '../data/'+PROJECT_NAME+'/train/'
 VALIDATION_DATA_PATH = '../data/'+PROJECT_NAME+'/test/'
 TEST_DATA_PATH = '../data/'+PROJECT_NAME+'/test/'
 
-TRAIN_DATA_NAME= 'data.0'
-TRAIN_LABEL_NAME= 'label.0'
 
-VALIDATION_DATA_NAME= 'data.0'
-VALIDATION_LABEL= 'label.0'
 
-TEST_DATA_NAME= 'data.0'
-TEST_LABEL_NAME= 'label.0'
+TRAIN_DATA_NAME= 'data.'+data_index
+TRAIN_LABEL_NAME= 'label.'+data_index
 
-INFERENCE_RESULT_NAME='result.0'
+VALIDATION_DATA_NAME= 'data.'+data_index
+VALIDATION_LABEL= 'label.'+data_index
+
+TEST_DATA_NAME= 'data.'+data_index
+TEST_LABEL_NAME= 'label.'+data_index
+
+INFERENCE_RESULT_NAME='result.'+data_index
 
 
 CPT_PATH = '../checkpoints/'+PROJECT_NAME+'/'+MODEL_NAME+'/'+TRAIN_DATA_NAME
 LOG_PATH='../log/'+PROJECT_NAME+'/'+MODEL_NAME+'/'+TRAIN_DATA_NAME
 VISUALIZATION_PATH ='../visualization/'+PROJECT_NAME+'/'+MODEL_NAME+'/'+TRAIN_DATA_NAME
 
-VOCAB_SIZE=4279
 UNK_ID = 0
 PAD_ID = 1
 START_ID = 2
@@ -36,7 +39,7 @@ HIDDEN_SIZE = [128,256]
 BATCH_SIZE = 128
 LR = 0.0003
 #NUM_SAMPLES = 512
-NUM_CLASSES=36
+NUM_CLASSES=10
 EMBEDDING_SIZE=256
 KERNEL_SIZE=[2,3,4]
 NUM_FILTERS=2

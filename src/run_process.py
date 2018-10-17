@@ -1,7 +1,8 @@
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import sys
-sys.path.append('..')
+#sys.path.append('..')
+sys.path.append('utils/')
 import time
 import tensorflow as tf
 import config
@@ -21,7 +22,7 @@ def train_one_epoch(compute_graph,sess,init_train,init_validate,saver, writer, e
     try:
         sess.run(init_train)
         while True:
-            batch_loss, _, accuracy = sess.run([compute_graph.loss, compute_graph.opt, compute_graph.acc_op])
+            batch_loss, _,  accuracy = sess.run([compute_graph.loss, compute_graph.opt, compute_graph.acc_op])
 
             iteration += 1
             total_loss += batch_loss
@@ -50,7 +51,7 @@ def train_one_epoch(compute_graph,sess,init_train,init_validate,saver, writer, e
         sess.run(init_validate)
 
         while True:
-            batch_loss, _, accuracy = sess.run([compute_graph.loss, compute_graph.opt, compute_graph.acc_op])
+            batch_loss, _, accuracy = sess.run([compute_graph.loss, compute_graph.opt,compute_graph.acc_op])
             total_loss += batch_loss
             total_accuracy += accuracy
             n_batches +=1
@@ -141,11 +142,13 @@ def inference(compute_graph,next_element,inference_init_op):
                             [tf.nn.softmax(compute_graph.logits, name='softmax_tensor'), tf.argmax(input=compute_graph.logits, axis=1),
                              compute_graph.acc_op,compute_graph.A,next_element])
                     else:
-                        probability, classes, acc = sess.run(
+                        probability, classes, acc= sess.run(
                             [tf.nn.softmax(compute_graph.logits, name='softmax_tensor'), tf.argmax(input=compute_graph.logits, axis=1),
                              compute_graph.acc_op])
                     print(acc)
                     logging.info(str(acc))
+                    #print(acc_per_class)
+                    #logging.info(str(acc_per_class))
 
                 else:
                     if config.SELF_ATTENTION_TAG:

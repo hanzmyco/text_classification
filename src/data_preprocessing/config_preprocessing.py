@@ -1,0 +1,11 @@
+# parameters for preprocessing the dataset
+ORIGIN_DATA = '../../data/ads_liulanqi/all.txt'
+ORIGIN_LABEL='../../data/ads_liulanqi/label_all.txt'
+TOKENIZED_DATA = '../../data/ads_liulanqi/all.txt.tok'
+PROCESSED_LABEL = '../../data/ads_liulanqi/processed_label_all.txt'
+#PROCESSED_PATH ='../data/ads_liulanqi/processed/'
+ID_DATA ='../../data/ads_liulanqi/all.ids'
+TRAIN_FILES_OUT = '../../data/ads_liulanqi/train/data'
+TEST_FILES_OUT = '../../data/ads_liulanqi/test/data'
+TRAIN_LABELS_OUT = '../../data/ads_liulanqi/train/label'
+TEST_LABELS_OUT = '../../data/ads_liulanqi/test/label'

@@ -20,8 +20,12 @@ import random
 import re
 import numpy as np
 import config_preprocessing
+import sys
+sys.path.append('../')
+sys.path.append('../utils')
 import config
-
+import split_data
+import utils
 
 def get_lines():
     id2line = {}
@@ -147,7 +151,9 @@ def basic_tokenizer(line, normalize_digits=False):
 
 def build_vocab(filename, normalize_digits=False):
     in_path = filename
-    out_path = os.path.join(config_preprocessing.PROCESSED_PATH, 'vocab.{}'.format(filename[-7:-4]))
+    #out_path = os.path.join(config_preprocessing.PROCESSED_PATH, 'vocab.{}'.format(filename[-7:-4]))
+    #out_path = 'vocab.{}'.format(filename[-7:-4])
+    out_path = '../../data/'+config.PROJECT_NAME+'/vocab.txt'
 
     vocab = {}
     with open(in_path, 'r',encoding='utf-8') as f:
@@ -199,7 +205,9 @@ def token2id(data_in_name,data_out_name,mode):
 
     in_path = data_in_name
 
-    _, vocab = load_vocab(os.path.join(config_preprocessing.PROCESSED_PATH, vocab_path))
+    _, vocab = load_vocab('../../data/'+config.PROJECT_NAME+'/'+vocab_path)
+
+    #_, vocab = load_vocab(os.path.join(config_preprocessing.PROCESSED_PATH, vocab_path))
     in_file = open(in_path, 'r',encoding='utf-8')
     out_file = open(out_path, 'w',encoding='utf-8')
 
@@ -317,4 +325,8 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 if __name__ == '__main__':
     tokenize_data(config_preprocessing.ORIGIN_DATA,config_preprocessing.ORIGIN_LABEL,config_preprocessing.PROCESSED_LABEL,config_preprocessing.TOKENIZED_DATA)
     process_data(config_preprocessing.TOKENIZED_DATA)
+    utils.safe_mkdir_depths('../../data/ads_liulanqi/train/')
+    utils.safe_mkdir_depths('../../data/ads_liulanqi/test/')
+    split_data.k_fold_validation(config_preprocessing.ID_DATA, config_preprocessing.PROCESSED_LABEL, config_preprocessing.TRAIN_FILES_OUT, config_preprocessing.TEST_FILES_OUT, config_preprocessing.TRAIN_LABELS_OUT, config_preprocessing.TEST_LABELS_OUT)
+
 
