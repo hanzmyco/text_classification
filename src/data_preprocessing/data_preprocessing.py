@@ -325,8 +325,8 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 if __name__ == '__main__':
     tokenize_data(config_preprocessing.ORIGIN_DATA,config_preprocessing.ORIGIN_LABEL,config_preprocessing.PROCESSED_LABEL,config_preprocessing.TOKENIZED_DATA)
     process_data(config_preprocessing.TOKENIZED_DATA)
-    utils.safe_mkdir_depths('../../data/ads_liulanqi/train/')
-    utils.safe_mkdir_depths('../../data/ads_liulanqi/test/')
+    utils.safe_mkdir_depths(config_preprocessing.TRAIN_DIRECTORY)
+    utils.safe_mkdir_depths(config_preprocessing.TEST_DIRECTORY)
     split_data.k_fold_validation(config_preprocessing.ID_DATA, config_preprocessing.PROCESSED_LABEL, config_preprocessing.TRAIN_FILES_OUT, config_preprocessing.TEST_FILES_OUT, config_preprocessing.TRAIN_LABELS_OUT, config_preprocessing.TEST_LABELS_OUT)
 
 

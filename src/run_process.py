@@ -12,7 +12,7 @@ from tensorflow.python import pywrap_tensorflow
 import numpy
 import utils
 
-def train_one_epoch(compute_graph,sess,init_train,init_validate,saver, writer, epoch, iteration):
+def train_one_epoch(compute_graph,sess,init_train,init_validate,saver, writer, epoch, iteration,merged_summary):
     start_time = time.time()
     total_loss = 0
     n_batches = 0
@@ -22,7 +22,10 @@ def train_one_epoch(compute_graph,sess,init_train,init_validate,saver, writer, e
     try:
         sess.run(init_train)
         while True:
-            batch_loss, _,  accuracy = sess.run([compute_graph.loss, compute_graph.opt, compute_graph.acc_op])
+            batch_loss, _,  accuracy,summary = sess.run([compute_graph.loss, compute_graph.opt, compute_graph.acc_op,merged_summary])
+
+
+            writer.add_summary(summary,iteration)
 
             iteration += 1
             total_loss += batch_loss
@@ -64,10 +67,13 @@ def train_one_epoch(compute_graph,sess,init_train,init_validate,saver, writer, e
 
 
 def train(compute_graph,next_element,training_init_op,validation_init_op,n_epochs):
-    writer = tf.summary.FileWriter('../checkpoints/'+config.PROJECT_NAME+'/'+config.MODEL_NAME, tf.get_default_graph())
+    tf.summary.scalar('loss',compute_graph.loss)
+    merged = tf.summary.merge_all()
 
     with tf.Session() as sess:
         compute_graph.create_model(next_element,config.ONE_HOT_TAG,training=True)
+        writer = tf.summary.FileWriter('../checkpoints/gists/'+config.PROJECT_NAME+'/'+config.MODEL_NAME, tf.get_default_graph())
+
         sess.run(tf.global_variables_initializer())
         sess.run(tf.local_variables_initializer())
         saver = tf.train.Saver(max_to_keep=3,save_relative_paths=True)
@@ -75,7 +81,7 @@ def train(compute_graph,next_element,training_init_op,validation_init_op,n_epoch
         _check_restore_parameters(sess, saver)
 
         for epoch in range(n_epochs):
-            iteration = train_one_epoch(compute_graph,sess,training_init_op,validation_init_op,saver,writer, epoch, iteration)
+            iteration = train_one_epoch(compute_graph,sess,training_init_op,validation_init_op,saver,writer, epoch, iteration,merged)
 
     writer.close()
 
