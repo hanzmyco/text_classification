@@ -9,9 +9,9 @@ import config
 class LSTM(rnn.RNN):
     def create_actual_model(self, embd):
         embd=rnn.RNN.create_actual_model(self,embd)
-        
+
         with tf.name_scope("rnn_cell"):
-            layers = [tf.nn.rnn_cell.LSTMCell(size,state_is_tuple=True,initializer=self.initializer) for size in self.hidden_sizes]
+            layers = [tf.nn.rnn_cell.LSTMCell(size,state_is_tuple=True,initializer=self.initializer) for size in config.HIDDEN_SIZE]
             cells = tf.nn.rnn_cell.MultiRNNCell(layers,state_is_tuple=True)
             batch = tf.shape(embd)[0]
             zero_tuples = cells.zero_state(batch, dtype=tf.float32)
@@ -24,7 +24,7 @@ class LSTM(rnn.RNN):
 
 
             if config.MODEL_BI_DIRECTION:
-                bw_layers = [tf.nn.rnn_cell.LSTMCell(size,state_is_tuple=True) for size in self.hidden_sizes]
+                bw_layers = [tf.nn.rnn_cell.LSTMCell(size,state_is_tuple=True) for size in config.HIDDEN_SIZE]
                 bw_cells = tf.nn.rnn_cell.MultiRNNCell(bw_layers)
                 bw_zero_tuples = bw_cells.zero_state(batch,dtype=tf.float32)
                 bw_in_state = tuple(

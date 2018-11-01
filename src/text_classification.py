@@ -37,7 +37,7 @@ def main():
     elif config.MODEL_NAME =='CNN':
         compute_graph = CNN(config.MODEL_NAME)
 
-    compute_graph.vocab_size = config.VOCAB_SIZE
+    #compute_graph.vocab_size = config.VOCAB_SIZE
 
     if args.mode == 'train':
         local_dest = config.TRAIN_DATA_PATH+config.TRAIN_DATA_NAME

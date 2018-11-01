@@ -19,12 +19,10 @@ class BaseModel(object):
         self.out_state = None
         self.in_state = None
         self.sample = None
-        config.NUM_STEPS = config.NUM_STEPS  # for RNN unrolled, actually use it for cut down
-        self.embedding_size = config.EMBEDDING_SIZE
-        self.vocab_size=config.VOCAB_SIZE
+        #config.NUM_STEPS = config.NUM_STEPS  # for RNN unrolled, actually use it for cut down
+        #config.VOCAB_SIZE=config.VOCAB_SIZE
         self.loss=0
         self.initializer=None
-        print('test git')
         if config.INITIALIZER=='xavier':
             self.initializer=tf.contrib.layers.xavier_initializer()
 
@@ -45,6 +43,8 @@ class BaseModel(object):
                 with tf.name_scope('embed'):
                     if not config.PRETRAIN_EMBD_TAG:
 
+                            self.embedding_size = config.EMBEDDING_SIZE
+                            self.vocab_size = config.VOCAB_SIZE
                             embed_matrix = tf.get_variable('embed_matrix',
                                                            shape=[self.vocab_size, self.embedding_size],
                                                            initializer=tf.random_uniform_initializer())
@@ -95,6 +95,3 @@ class BaseModel(object):
                 self.opt = optimizer.apply_gradients(zip(clipped_gradients,params),global_step = self.gstep)
 
                 #self.opt = tf.train.AdamOptimizer(config.LR).minimize(self.loss, global_step=self.gstep)
-
-
-            print('test git')

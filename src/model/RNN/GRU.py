@@ -12,7 +12,7 @@ class GRU(rnn.RNN):
 
         with tf.name_scope("rnn_cell"):
             with tf.variable_scope('scope_GRU',reuse=tf.AUTO_REUSE):
-                layers = [tf.nn.rnn_cell.GRUCell(size,kernel_initializer=self.initializer,bias_initializer=self.initializer) for size in self.hidden_sizes]
+                layers = [tf.nn.rnn_cell.GRUCell(size,kernel_initializer=self.initializer,bias_initializer=self.initializer) for size in config.HIDDEN_SIZE]
                 cells = tf.nn.rnn_cell.MultiRNNCell(layers)
 
                 batch = tf.shape(embd)[0]
@@ -28,7 +28,7 @@ class GRU(rnn.RNN):
                 length = tf.cast(tf.reduce_sum(tf.reduce_max(tf.sign(embd), 2), 1),tf.int32)
 
                 if config.MODEL_BI_DIRECTION:
-                    bw_layers = [tf.nn.rnn_cell.GRUCell(size) for size in self.hidden_sizes]
+                    bw_layers = [tf.nn.rnn_cell.GRUCell(size) for size in config.HIDDEN_SIZE]
                     bw_cells = tf.nn.rnn_cell.MultiRNNCell(bw_layers)
                     bw_zero_states =bw_cells.zero_state(batch,dtype=tf.float32)
                     bw_in_state = tuple([tf.placeholder_with_default(state, [None, state.shape[1]])
