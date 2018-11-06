@@ -134,8 +134,8 @@ def test_restore():
     for tensor_name in var_to_shape_map:
         print('tensor_name: ',tensor_name)
         target = reader.get_tensor(tensor_name)
-        utils.safe_mkdir_depths(config.CAFFEE_MODEL_PATH+tensor_name)
-        numpy.save(config.CAFFEE_MODEL_PATH+tensor_name,target)
+        utils.safe_mkdir_depths(config.TF_PARAMETER_NPY_PATH+tensor_name)
+        numpy.save(config.TF_PARAMETER_NPY_PATH+tensor_name,target)
 
 def inference(compute_graph,next_element,inference_init_op):
     output_file = open(config.TEST_DATA_PATH + config.INFERENCE_RESULT_NAME, 'w+')

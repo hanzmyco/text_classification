@@ -1,7 +1,7 @@
 import os
 
 PROJECT_NAME='liulanqi_ads_all'
-data_index='1'
+data_index='0'
 
 
 MODEL_NAME='CNN'
@@ -41,7 +41,7 @@ HIDDEN_SIZE = [128,256]
 BATCH_SIZE = 128
 LR = 0.0003
 #NUM_SAMPLES = 512
-NUM_CLASSES=694
+NUM_CLASSES=11
 EMBEDDING_SIZE=256
 KERNEL_SIZE=[2,3,4]
 NUM_FILTERS=64
@@ -72,7 +72,7 @@ ATTENTION_COEF=0.004
 VISUALIZATION = False
 
 CKPT_FILE_NAME='/-520'
-CAFFEE_MODEL_PATH ='../model/'+PROJECT_NAME+'/'+MODEL_NAME+'/'+TRAIN_DATA_NAME+'/caffee/'+CKPT_FILE_NAME+'/'
+TF_PARAMETER_NPY_PATH ='../model/'+PROJECT_NAME+'/'+MODEL_NAME+'/'+TRAIN_DATA_NAME+'/tf/'+CKPT_FILE_NAME+'/'
 
 if os.path.exists('../data/'+PROJECT_NAME+'/vocab.txt'):
     VOCAB_SIZE=sum(1 for line in open('../data/'+PROJECT_NAME+'/vocab.txt','r',encoding='utf-8'))
