@@ -1,0 +1,1 @@
+../../data/liulanqi_ads_all/test/label.0 ../../data/liulanqi_ads_all/test/result.0
