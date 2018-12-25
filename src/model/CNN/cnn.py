@@ -16,7 +16,7 @@ class CNN(models.BaseModel):
         #config.DROPOUT_KEEP_PROB = config.DROPOUT_KEEP_PROB
 
 
-    def create_actual_model(self, embd):
+    def create_actual_model(self, embd,training=True):
         if config.ONE_HOT_TAG:
             self.kernel_width = self.vocab_size
         else:
@@ -35,7 +35,10 @@ class CNN(models.BaseModel):
         h_pool = tf.concat(pooled_outputs,3)
 
         with tf.name_scope('dropouts'):
-            h_pool_drop = tf.nn.dropout(tf.reshape(h_pool,[-1,num_filters_total]),config.DROPOUT_KEEP_PROB)
+            if training:
+                h_pool_drop = tf.nn.dropout(tf.reshape(h_pool,[-1,num_filters_total]),config.DROPOUT_KEEP_PROB)
+            else:
+                h_pool_drop = tf.nn.dropout(tf.reshape(h_pool,[-1,num_filters_total]),1.0)
         self.output = h_pool_drop
 
     def get_logits(self):

@@ -77,8 +77,8 @@ def train(compute_graph,next_element,training_init_op,validation_init_op,n_epoch
     with tf.Session() as sess:
         compute_graph.create_model(next_element,config.ONE_HOT_TAG,training=True)
 
-        train_writer = tf.summary.FileWriter('../graphs/gists/'+config.PROJECT_NAME+'/'+config.MODEL_NAME+'/train', tf.get_default_graph())
-        validation_writer = tf.summary.FileWriter('../graphs/gists/'+config.PROJECT_NAME+'/'+config.MODEL_NAME+'/validation', tf.get_default_graph())
+        train_writer = tf.summary.FileWriter('../graphss/gistss/'+config.PROJECT_NAME+'/'+config.MODEL_NAME+'/train', tf.get_default_graph())
+        validation_writer = tf.summary.FileWriter('../graphss/gistss/'+config.PROJECT_NAME+'/'+config.MODEL_NAME+'/validation', tf.get_default_graph())
         tf.summary.scalar('loss',compute_graph.loss)
         tf.summary.scalar('accuracy',compute_graph.acc_op)
         merged_summary = tf.summary.merge_all()
@@ -139,7 +139,7 @@ def test_restore():
 
 def inference(compute_graph,next_element,inference_init_op):
     output_file = open(config.TEST_DATA_PATH + config.INFERENCE_RESULT_NAME, 'w+')
-
+    score_file = open(config.TEST_DATA_PATH + config.INFERENCE_RESULT_NAME+'.score', 'w+')
     with tf.Session() as sess:
         compute_graph.create_model(next_element,config.ONE_HOT_TAG,training=False)
         saver = tf.train.Saver()
@@ -178,6 +178,9 @@ def inference(compute_graph,next_element,inference_init_op):
 
                 for ite in classes:
                     output_file.write(str(ite) + '\n')
+                for ite in probability:
+                    score_file.write(str(ite[1]) + '\n')
+
 
                 if config.VISUALIZATION:
                     visualization(attention,text_data_id,f)

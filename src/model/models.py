@@ -27,7 +27,7 @@ class BaseModel(object):
             self.initializer=tf.contrib.layers.xavier_initializer()
 
 
-    def create_actual_model(self, embd):
+    def create_actual_model(self, embd,training=True):
         pass
 
     def get_logits(self):
@@ -63,7 +63,7 @@ class BaseModel(object):
                     print(embed_matrix.name)
                     print(embed.name)
 
-            self.create_actual_model(embed)
+            self.create_actual_model(embed,training)
 
             self.get_logits()
 
@@ -73,7 +73,8 @@ class BaseModel(object):
 
             labels = tf.argmax(input=in_data[1], axis=2)
             predictions = tf.argmax(input=self.logits, axis=1)
-
+            print(labels)
+            print(predictions)
             _, self.acc_op = tf.metrics.accuracy(labels=labels, predictions=predictions,name = 'my_metrics')
 
 

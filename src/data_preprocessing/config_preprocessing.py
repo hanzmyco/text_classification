@@ -1,4 +1,4 @@
-PROJECT_NAME='liulanqi_ads_all'
+PROJECT_NAME='weixin_12_25'
 # parameters for preprocessing the dataset
 
 ORIGIN_DATA = '../../data/'+PROJECT_NAME+'/all.txt'

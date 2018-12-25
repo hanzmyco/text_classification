@@ -60,12 +60,13 @@ def chinese_simple_tokenizer(line):
 
 
 
-def tokenize_data(file_name,origin_labels,delete_repeated_labels_filename,tokenized_data_filename):
+def tokenize_data(file_name,tokenized_data_filename,origin_labels=None,delete_repeated_labels_filename=None):
         print('Tokenizing the data ...')
         repeated_line_ids=set()
-        deleted_labels_file = open(delete_repeated_labels_filename,'w')
+        if delete_repeated_labels_filename !=None:
+            deleted_labels_file = open(delete_repeated_labels_filename,'w')
+            seen_texts = set()
 
-        seen_texts = set()
         actual_file=file_name
 
         out_file = open(tokenized_data_filename,'w',encoding='utf-8')
@@ -76,20 +77,26 @@ def tokenize_data(file_name,origin_labels,delete_repeated_labels_filename,tokeni
 
         for i in range(n):
             train= train_lines[i]
-            train_clean = chinese_simple_tokenizer(train)
-            if train_clean in seen_texts:
+            train_clean = chinese_simple_tokenizer(train).strip().split('\n')[0]
+            test = train_clean.split('\r')
+            if len(test)>1:
+                print('here')
+
+            if delete_repeated_labels_filename !=None and train_clean in seen_texts:
                 print(train_clean)
                 repeated += 1
                 repeated_line_ids.add(i)
                 continue
-            seen_texts.add(train_clean)
+            elif delete_repeated_labels_filename !=None and train_clean not in seen_texts:
+                seen_texts.add(train_clean)
             out_file.write(train_clean + '\n')
 
-        print('Total repeated in', actual_file, ':', repeated)
-        label_file = open(origin_labels,'r').readlines()
-        for index, ite in enumerate(label_file):
-            if index not in repeated_line_ids:
-                deleted_labels_file.write(ite)
+        if delete_repeated_labels_filename !=None:
+            print('Total repeated in', actual_file, ':', repeated)
+            label_file = open(origin_labels,'r').readlines()
+            for index, ite in enumerate(label_file):
+                if index not in repeated_line_ids:
+                    deleted_labels_file.write(ite)
 
 
 
@@ -211,15 +218,19 @@ def token2id(data_in_name,data_out_name,mode):
     in_file = open(in_path, 'r',encoding='utf-8')
     out_file = open(out_path, 'w',encoding='utf-8')
 
-    lines = in_file.read().splitlines()
-    for line in lines:
+    #lines = in_file.read().splitlines()
+
+    #for line in lines:
+    num=0
+    for line in open(in_path,'r',encoding = 'utf-8'):
         ids = []
         ids.extend(sentence2id(vocab, line))
         padd_input=_pad_input(ids,config.NUM_STEPS)
         out_file.write(' '.join(str(id_) for id_ in padd_input[:config.NUM_STEPS]) + '\n')
-
+        num+=1
         #out_file.write(' '.join(str(id_) for id_ in ids) + '\n')
-
+    print(num)
+    print('lol')
 
 
 def loadGloVe(filename,vocab_tag=False,embedding=False):
@@ -255,6 +266,15 @@ def process_data(file_name):
             build_vocab(file_name)
 
     token2id(config_preprocessing.TOKENIZED_DATA,config_preprocessing.ID_DATA, 'txt')
+def process_data_from_vocab(file_name,vocab_file):
+    dict={}
+    index=0
+    for line in open(vocab_file,encoding='utf-8'):
+        character = line.strip()
+        dict[character]=index
+        index+=1
+    for line in open(file_name,encoding='utf-8'):
+        line = line.strip()
 
 
 def load_data(enc_filename, dec_filename, max_training_size=None):
@@ -323,10 +343,17 @@ def get_batch(data_bucket, bucket_id, batch_size=1):
 
 
 if __name__ == '__main__':
-    tokenize_data(config_preprocessing.ORIGIN_DATA,config_preprocessing.ORIGIN_LABEL,config_preprocessing.PROCESSED_LABEL,config_preprocessing.TOKENIZED_DATA)
+
+
+    tokenize_data(config_preprocessing.ORIGIN_DATA,config_preprocessing.TOKENIZED_DATA,config_preprocessing.ORIGIN_LABEL,config_preprocessing.PROCESSED_LABEL)
     process_data(config_preprocessing.TOKENIZED_DATA)
     utils.safe_mkdir_depths(config_preprocessing.TRAIN_DIRECTORY)
     utils.safe_mkdir_depths(config_preprocessing.TEST_DIRECTORY)
     split_data.k_fold_validation(config_preprocessing.ID_DATA, config_preprocessing.PROCESSED_LABEL, config_preprocessing.TRAIN_FILES_OUT, config_preprocessing.TEST_FILES_OUT, config_preprocessing.TRAIN_LABELS_OUT, config_preprocessing.TEST_LABELS_OUT)
 
-
+    ''' 
+    tokenize_data('../../data/renyun_12_21/all.txt','../../data/weishi_ads_12_14/ocr_text_test.tok')
+    tokenize_data('../../data/weishi_ads_12_14/title_text.test','../../data/weishi_ads_12_14/title_text_test.tok')
+    token2id('../../data/weishi_ads_12_14/ocr_text_test.tok','../../data/weishi_ads_12_14/ocr_text_test.ids','txt')
+    token2id('../../data/weishi_ads_12_14/title_text_test.tok','../../data/weishi_ads_12_14/title_text_test.ids','txt')
+    '''
